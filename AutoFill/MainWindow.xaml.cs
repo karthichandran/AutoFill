@@ -38,6 +38,11 @@ namespace AutoFill
 
         private void AutoFillForm296Q(int clientPaymentTransactionID) {
             AutoFillDto autoFillDto = svc.GetAutoFillData(clientPaymentTransactionID);
+            if (autoFillDto == null)
+            {
+                MessageBox.Show("Data is not available to proceed Form26QB", "alert", MessageBoxButton.OK);
+                return;
+            }
             FillForm26Q.AutoFillForm26QB(autoFillDto);
         }
 
@@ -51,12 +56,14 @@ namespace AutoFill
 
         private void Search_Click(object sender, RoutedEventArgs e)
         {
-            var custName = customerNameTxt.Text;
-            var premise = PremisesTxt.Text;
-            var unit = unitNoTxt.Text;
-            var lot = lotNoTxt.Text;
-            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance(custName, premise, unit, lot);
-            remitanceGrid.ItemsSource = remitanceList;
+            SearchFilter();
+        }
+       
+
+        private void textboxKeydown(object sender, KeyEventArgs e)
+        {
+             if ( e.Key==Key.Enter)
+            SearchFilter();
         }
 
         private void Reset_Click(object sender, RoutedEventArgs e)
@@ -66,5 +73,14 @@ namespace AutoFill
             unitNoTxt.Text = "";
             lotNoTxt.Text = "";
         }
+        private void SearchFilter() {
+            var custName = customerNameTxt.Text;
+            var premise = PremisesTxt.Text;
+            var unit = unitNoTxt.Text;
+            var lot = lotNoTxt.Text;
+            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance(custName, premise, unit, lot);
+            remitanceGrid.ItemsSource = remitanceList;
+        }
+
     }
 }

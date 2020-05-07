@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoFill"
         mc:Ignorable="d"
-        Title="Repro Services" Height="450" Width="800">
+        Title="Repro Services" Height="450" Width="800"
+         WindowState="Maximized">
     
     <Grid x:Name = "FilterGrid" Background="#FFF3F2F2">
         <Grid.ColumnDefinitions>
@@ -32,28 +33,28 @@
         <Label x:Name="unitNo" Height="30" Content="Unit No" Grid.Row="1" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
         <Label  x:Name="lotNo" Height="30" Content="Lot No" Grid.Row="1" Grid.Column="3" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
 
-        <TextBox  x:Name="customerNameTxt" VerticalContentAlignment="Center" Height="35"  Grid.Row="2" Grid.Column="0" Margin="10,0,10,10"  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="customerNameTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="2" Grid.Column="0" Margin="10,0,10,10"  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox  x:Name="PremisesTxt" VerticalContentAlignment="Center" Height="35"  Grid.Row="2" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="PremisesTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="2" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox  x:Name="unitNoTxt" VerticalContentAlignment="Center" Height="35" Grid.Row="2" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="unitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="2" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox  x:Name="lotNoTxt" VerticalContentAlignment="Center" Height="35" Grid.Row="2" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="lotNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="2" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
@@ -78,7 +79,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Center"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
+        <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
             <DataGrid.Columns>
                 <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
                     <DataGridColumn.HeaderStyle>
@@ -129,6 +130,22 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Amount" Binding="{Binding AmountPaid}">
+                    <DataGridColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Foreground" Value="#828385"/>
+                        </Style>
+                    </DataGridColumn.HeaderStyle>
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Padding" Value="10,0,0,0" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Amount Share" Binding="{Binding AmountShare}">
                     <DataGridColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Height" Value="40"/>

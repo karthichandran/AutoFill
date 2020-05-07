@@ -14,7 +14,7 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+            client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -86,6 +86,8 @@ namespace AutoFill
         public int StatusTypeID { get; set; }
         public decimal GrossShareAmount { get; set; }
         public int RemittanceStatus { get; set; }
+
+        public decimal AmountShare { get; set; }
     }
 
     public class AutoFillDto

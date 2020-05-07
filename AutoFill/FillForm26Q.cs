@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -59,7 +60,9 @@ namespace AutoFill
                 WaitForReady(driver);
                 // var proceedBtn = driver.FindElement(By.XPath("//a[@href='javascript:sendRequest(\'PropertyTaxForm\');']"));
                 driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
-                //
+
+              //  MessageBoxResult result = MessageBox.Show("PLease fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
+
                 WaitForReady(driver);
                 FillTaxPayerInfo(driver, autoFillDto.tab1);
 
@@ -75,6 +78,7 @@ namespace AutoFill
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                MessageBox.Show("Processing Form26QB is Failed");
                // throw;
             }
 
