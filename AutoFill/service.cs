@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoFill
@@ -14,7 +17,8 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-            client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+            // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+            client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -44,6 +48,31 @@ namespace AutoFill
             return remitance;
         }
 
+        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string lot)
+        {
+            IList<TdsRemittanceDto> remitance = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            var query = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(custName))
+                query["customerName"] = custName;
+            if (!string.IsNullOrEmpty(premises))
+                query["PropertyPremises"] = premises;
+            if (!string.IsNullOrEmpty(unit))
+                query["unitNo"] = unit;
+            if (!string.IsNullOrEmpty(lot))
+                query["lotNo"] = lot;
+
+
+            response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/processedList", query)).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remitance = response.Content.ReadAsAsync<IList<TdsRemittanceDto>>().Result;
+            }
+            return remitance;
+        }
+
         public AutoFillDto GetAutoFillData(int clientPaymentTransactionID)
         {
 
@@ -57,6 +86,167 @@ namespace AutoFill
             }
             return autoFillDto;
         }
+        
+        public bool SetToTdsPaid(int clientPaymentTransactionID)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.PutAsync("ClientPayment/remittanceStatus/" + clientPaymentTransactionID+"/2",null).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public RemittanceDto GetRemitanceByTransID(int clientPaymentTransactionID)
+        {
+            RemittanceDto remittanceDto = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("TdsRemittance/getRemittance/" + clientPaymentTransactionID).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remittanceDto = response.Content.ReadAsAsync<RemittanceDto>().Result;
+            }
+            return remittanceDto;
+        }
+
+        public bool SaveRemittance(RemittanceDto remittanceDto) {
+            HttpResponseMessage response = new HttpResponseMessage();
+            bool isNew = remittanceDto.RemittanceID == 0;
+
+            //var json = JsonConvert.SerializeObject(remittanceDto);
+            //var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+           CreateRemittaneCommand createRemittaneCommand=new CreateRemittaneCommand();
+            createRemittaneCommand.remittanceDto = remittanceDto;
+
+            if (isNew)
+                response = client.PostAsJsonAsync("TdsRemittance" , createRemittaneCommand).Result;
+            else
+                response = client.PutAsJsonAsync("TdsRemittance", createRemittaneCommand).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool UploadFile(MultipartFormDataContent file,string ownershipId, int category) {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.PostAsync("files/guid/"+ ownershipId+"/"+category, file).Result;
+            return false;
+        }
+
+        public CustomerPropertyFileDto GetFile(string ownershipId) {
+            IList<CustomerPropertyFileDto> customerPropertyFileDto = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("files/fileslist/" + ownershipId ).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                customerPropertyFileDto = response.Content.ReadAsAsync<IList<CustomerPropertyFileDto>>().Result;
+            }
+            return customerPropertyFileDto.Count>0? customerPropertyFileDto[0]:null;
+
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var ms = response.Content.ReadAsStreamAsync();
+            //    var fs = File.Create()
+            //}
+        }
+
+        public void DownloadFile(string blobId,string fileName)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("files/blobId/" + blobId).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var ms = response.Content.ReadAsStreamAsync();
+                var fs = File.Create(fileName);
+                
+            }
+
+        }
+
+        public string GetContentType(string fileExtension)
+        {
+            var mimeTypes = new Dictionary<String, String>
+            {
+                {".bmp", "image/bmp"},
+                {".gif", "image/gif"},
+                {".jpeg", "image/jpeg"},
+                {".jpg", "image/jpeg"},
+                {".png", "image/png"},
+                {".tif", "image/tiff"},
+                {".tiff", "image/tiff"},
+                {".doc", "application/msword"},
+                {".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+                {".pdf", "application/pdf"},
+                {".ppt", "application/vnd.ms-powerpoint"},
+                {".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+                {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+                {".xls", "application/vnd.ms-excel"},
+                {".csv", "text/csv"},
+                {".xml", "text/xml"},
+                {".txt", "text/plain"},
+                {".zip", "application/zip"},
+                {".ogg", "application/ogg"},
+                {".mp3", "audio/mpeg"},
+                {".wma", "audio/x-ms-wma"},
+                {".wav", "audio/x-wav"},
+                {".wmv", "audio/x-ms-wmv"},
+                {".swf", "application/x-shockwave-flash"},
+                {".avi", "video/avi"},
+                {".mp4", "video/mp4"},
+                {".mpeg", "video/mpeg"},
+                {".mpg", "video/mpeg"},
+                {".qt", "video/quicktime"}
+            };
+
+            // if the file type is not recognized, return "application/octet-stream" so the browser will simply download it
+            return mimeTypes.ContainsKey(fileExtension) ? mimeTypes[fileExtension] : "application/octet-stream";
+        }
+    }
+
+
+    public class CustomerPropertyFileDto 
+    {
+        public int BlobID { get; set; }
+        public Guid? OwnershipID { get; set; }
+        public string FileName { get; set; }
+        public byte[] FileBlob { get; set; }
+        public DateTime? UploadTime { get; set; }
+
+        public int? FileLength { get; set; }
+        public string FileType { get; set; }
+        public string PanID { get; set; }
+
+        public int FileCategoryId { get; set; } = 4;
+        
+    }
+
+
+    public class CreateRemittaneCommand {
+        public RemittanceDto remittanceDto { get; set; }
+    }
+
+    public class RemittanceDto
+    {
+        public int RemittanceID { get; set; }
+        public int ClientPaymentTransactionID { get; set; }
+        public string ChallanID { get; set; }
+        public DateTime ChallanDate { get; set; }
+        public string ChallanAckNo { get; set; }
+        public decimal ChallanAmount { get; set; }
+        public Guid ChallanFileID { get; set; } = Guid.NewGuid();
+        public DateTime? F16BDateOfReq { get; set; }
+        public string F16BRequestNo { get; set; }
+        public string F16BCertificateNo { get; set; }
+        public Guid F16BFileID { get; set; } = Guid.NewGuid();
+        public int RemittanceStatusID { get; set; }      
     }
 
     public class TdsRemittanceDto
@@ -85,9 +275,12 @@ namespace AutoFill
         public decimal OwnershipAmount { get; set; }
         public int StatusTypeID { get; set; }
         public decimal GrossShareAmount { get; set; }
-        public int RemittanceStatus { get; set; }
-
+        public int RemittanceStatusID { get; set; }
+        public string RemittanceStatus { get; set; }
         public decimal AmountShare { get; set; }
+
+        public virtual DateTime ChallanDate { get; set; }
+        public virtual string ChallanNo { get; set; }
     }
 
     public class AutoFillDto
@@ -198,4 +391,6 @@ namespace AutoFill
         public int Tens { get; set; }
         public int Ones { get; set; }
     }
+
+    
 }
