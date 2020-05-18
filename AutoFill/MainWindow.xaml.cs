@@ -158,11 +158,18 @@ namespace AutoFill
 
         private void RequestForm16B(object sender, RoutedEventArgs e)
         {
-            FillTraces.AutoFillForm16B();
+            var model = (sender as Button).DataContext as TdsRemittanceDto;
+            var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
+            if(tdsremittanceModel!=null)
+            FillTraces.AutoFillForm16B(tdsremittanceModel);
         }
         private void DownLoadForm(object sender, RoutedEventArgs e)
         {
-            FillTraces.AutoFillDownload();
+            var model = (sender as Button).DataContext as TdsRemittanceDto;
+            var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
+            var remittanceModel = svc.GetRemitanceByTransID(model.ClientPaymentTransactionID);
+            if (tdsremittanceModel != null)
+                FillTraces.AutoFillDownload(tdsremittanceModel, remittanceModel.F16BRequestNo);
         }
 
         private void UpdateRemittance(object sender, RoutedEventArgs e)

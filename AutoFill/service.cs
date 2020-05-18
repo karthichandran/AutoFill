@@ -48,6 +48,20 @@ namespace AutoFill
             return remitance;
         }
 
+        public TdsRemittanceDto GetTdsRemitanceById(int clientPaymentTransactionID)
+        {
+            TdsRemittanceDto remitance = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            response = client.GetAsync("traces/"+ clientPaymentTransactionID).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remitance = response.Content.ReadAsAsync<TdsRemittanceDto>().Result;
+            }
+            return remitance;
+        }
+
         public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string lot)
         {
             IList<TdsRemittanceDto> remitance = null;
@@ -280,7 +294,13 @@ namespace AutoFill
         public decimal AmountShare { get; set; }
 
         public virtual DateTime ChallanDate { get; set; }
-        public virtual string ChallanNo { get; set; }
+        public virtual string ChallanAckNo { get; set; }
+
+        public virtual string CustomerPAN { get; set; }
+        public virtual string SellerPAN { get; set; }
+        public virtual string TracesPassword { get; set; }
+        public virtual string AcknowledgementNo { get; set; }
+        public virtual string AssessmentYear { get; set; }
     }
 
     public class AutoFillDto

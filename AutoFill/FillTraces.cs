@@ -11,46 +11,48 @@ namespace AutoFill
 {
     public class FillTraces : Base
     {
-        public static void AutoFillForm16B() {
+        public static void AutoFillForm16B(TdsRemittanceDto tdsRemittanceDto) {
             try {
                 var driver = GetChromeDriver();
                 driver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/login.xhtml");
                 WaitForReady(driver);
-                FillLogin(driver);
-                RquestForm16B(driver);
+                FillLogin(driver, tdsRemittanceDto);
+                RquestForm16B(driver, tdsRemittanceDto);
             }
             catch (Exception e) {
             }
         }
 
-        public static void AutoFillDownload()
+        public static void AutoFillDownload(TdsRemittanceDto tdsRemittanceDto,string requestNo )
         {
             try
             {
                 var driver = GetChromeDriver();
                 driver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/login.xhtml");
                 WaitForReady(driver);
-                FillLogin(driver);
-                DownloadForm(driver);
+                FillLogin(driver, tdsRemittanceDto);
+                DownloadForm(driver, requestNo);
             }
             catch (Exception e)
             {
             }
         }
 
-        private static void FillLogin(IWebDriver webDriver) {
+        private static void FillLogin(IWebDriver webDriver, TdsRemittanceDto tdsRemittanceDto) {
             var logintype = webDriver.FindElement(By.Id("tpao"));
             logintype.Click();
             
             WaitForReady(webDriver);
 
             var userId = webDriver.FindElement(By.Id("userId"));
-            userId.SendKeys("AJLPG4797J");
+            //  userId.SendKeys("AJLPG4797J");
+            userId.SendKeys(tdsRemittanceDto.CustomerPAN);
             userId.SendKeys(Keys.Tab);
             var pwd = webDriver.FindElement(By.Id("psw"));
-            pwd.SendKeys("Girish&123");
+            //  pwd.SendKeys("Girish&123");
+            pwd.SendKeys(tdsRemittanceDto.TracesPassword);
 
-             MessageBoxResult result = MessageBox.Show("Please fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Please fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
             WaitForReady(webDriver);
             var confirmationChk= webDriver.FindElement(By.Id("Details"));
             confirmationChk.Click();
@@ -60,7 +62,7 @@ namespace AutoFill
             WaitForReady(webDriver);           
         }
 
-        private static void RquestForm16B(IWebDriver webDriver) {
+        private static void RquestForm16B(IWebDriver webDriver, TdsRemittanceDto tdsRemittanceDto) {
             webDriver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/tap/download16b.xhtml");
             WaitForReady(webDriver);
 
@@ -70,18 +72,20 @@ namespace AutoFill
 
             var assessmentYear = webDriver.FindElement(By.Id("assmntYear"));
             var assessmentYearDDL = new SelectElement(assessmentYear);
-            assessmentYearDDL.SelectByText("2020-21");
+            // assessmentYearDDL.SelectByText("2020-21");
+            assessmentYearDDL.SelectByText(tdsRemittanceDto.AssessmentYear);
 
             var actkNo = webDriver.FindElement(By.Id("ackNo"));
-            actkNo.SendKeys("123");
+            actkNo.SendKeys(tdsRemittanceDto.ChallanAckNo);
 
             var panOfSeller = webDriver.FindElement(By.Id("panOfSeller"));
-            panOfSeller.SendKeys("AJLPG4797J");
+            //panOfSeller.SendKeys("AJLPG4797J");
+            panOfSeller.SendKeys(tdsRemittanceDto.SellerPAN);
 
             var process = webDriver.FindElement(By.Id("clickGo"));
         }
 
-        private static void DownloadForm(IWebDriver webDriver)
+        private static void DownloadForm(IWebDriver webDriver, string requestNo)
         {
             webDriver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/tap/tpfiledwnld.xhtml");
             WaitForReady(webDriver);
@@ -90,11 +94,11 @@ namespace AutoFill
             searchOpt.Click();
            
             var requestTxt = webDriver.FindElement(By.Id("reqNo"));
-            requestTxt.SendKeys("93295348");
+            requestTxt.SendKeys(requestNo);
 
             var viewRequestBtn = webDriver.FindElement(By.Id("getListByReqId"));
             viewRequestBtn.Click();
-            WaitFor(webDriver, 10);
+           
             var rows = webDriver.FindElements(By.ClassName("jqgrow"));
             if (rows.Count == 0)
                 return;
