@@ -22,9 +22,21 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <Label  x:Name="customerPan" Height="30" Content="" Grid.Row="0" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#ed2679" FontWeight="Bold" />
-        <Label x:Name="dateOfBirth" Height="30" Content="" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#ed2679" FontWeight="Bold" />
-
+        <TextBox  x:Name="customerPan" VerticalContentAlignment="Center" Height="35"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
+            <TextBox.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </TextBox.Resources>
+        </TextBox>
+        <TextBox  x:Name="dateOfBirth" VerticalContentAlignment="Center" Height="35"  Grid.Row="0" Grid.Column="1" Margin="0,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
+            <TextBox.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </TextBox.Resources>
+        </TextBox>
+        
         <Label  x:Name="customerName" Height="30" Content="Request date" Grid.Row="1" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
         <Label x:Name="premises" Height="30" Content="Request No" Grid.Row="1" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
         <Label x:Name="unitNo" Height="30" Content="Certificate No" Grid.Row="1" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />

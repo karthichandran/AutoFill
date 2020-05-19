@@ -36,8 +36,8 @@ namespace AutoFill
 
             upload.Visibility = Visibility.Visible;
 
-            customerPan.Content = remittance.CustomerPAN;
-            dateOfBirth.Content = remittance.DateOfBirth.ToString("ddMMyyyy");
+            customerPan.Text = remittance.CustomerPAN;
+            dateOfBirth.Text = remittance.DateOfBirth.ToString("ddMMyyyy");
 
             RequestNo.Text = remittance.F16BRequestNo;
             CertificateNo.Text = remittance.F16BCertificateNo;

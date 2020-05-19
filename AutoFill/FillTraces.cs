@@ -52,7 +52,7 @@ namespace AutoFill
             //  pwd.SendKeys("Girish&123");
             pwd.SendKeys(tdsRemittanceDto.TracesPassword);
 
-            MessageBoxResult result = MessageBox.Show("Please fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press Continue button.", "Confirmation", MessageBoxButton.YesNo);
             WaitForReady(webDriver);
             var confirmationChk= webDriver.FindElement(By.Id("Details"));
             confirmationChk.Click();
