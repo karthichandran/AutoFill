@@ -153,6 +153,9 @@ namespace AutoFill
             var unit = tracesUnitNoTxt.Text;
             var lot = tracesLotNoTxt.Text;
             IList<TdsRemittanceDto> remitanceList = svc.GetTdsPaidList(custName, premise, unit, lot);
+            //foreach (var model in remitanceList) {
+            //    model.ChallanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
+            //}
             TracesGrid.ItemsSource = remitanceList;
         }
 

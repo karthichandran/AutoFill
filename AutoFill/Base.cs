@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,13 +38,21 @@ namespace AutoFill
 
         protected static IWebDriver GetChromeDriver()
         {
+            //Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
+
+            //Process[] chromeDriverProcesses = Process.GetProcessesByName("chromedriver");
+            //foreach (var chromeDriverProcess in chromeDriverProcesses)
+            //{
+            //    chromeDriverProcess.Kill();
+            //}
+
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("--no-sandbox");
             options.AddArgument("--disable-infobars");
             options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--start-maximized");
             // options.BinaryLocation = AppDomain.CurrentDomain.BaseDirectory+"chromedriver.exe";
-            options.AddArgument("--remote-debugging-port=9222");
+           // options.AddArgument("--remote-debugging-port=9222");
 
             //var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
             ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);

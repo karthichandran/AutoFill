@@ -28,23 +28,25 @@ namespace AutoFill
         private void LoadRemitance()
         {
             remittance = svc.GetRemitanceByTransID(transID);
-            if (remittance.RemittanceID == 0)
-            {
+
+            if (remittance.F16BDateOfReq == null)
                 RequestDate.Text = DateTime.Now.Date.ToString();
-                upload.Visibility = Visibility.Hidden;
-            }
             else
-            {
-                upload.Visibility = Visibility.Visible;
                 RequestDate.Text = remittance.F16BDateOfReq.ToString();
-                RequestNo.Text = remittance.F16BRequestNo;
-                CertificateNo.Text = remittance.F16BCertificateNo;
-                CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.F16BFileID.ToString());
-                if (customerPropertyFileDto != null)
-                {
-                    FileNameLabel.Content = customerPropertyFileDto.FileName;
-                }
+
+            upload.Visibility = Visibility.Visible;
+
+            customerPan.Content = remittance.CustomerPAN;
+            dateOfBirth.Content = remittance.DateOfBirth.ToString("ddMMyyyy");
+
+            RequestNo.Text = remittance.F16BRequestNo;
+            CertificateNo.Text = remittance.F16BCertificateNo;
+            CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.F16BFileID.ToString());
+            if (customerPropertyFileDto != null)
+            {
+                FileNameLabel.Content = customerPropertyFileDto.FileName;
             }
+
         }
 
         private void Upload_Click(object sender, RoutedEventArgs e)

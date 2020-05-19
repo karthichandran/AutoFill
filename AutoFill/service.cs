@@ -17,8 +17,9 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-            // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+             client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+           // client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
+            //client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -39,7 +40,7 @@ namespace AutoFill
                 query["lotNo"] = lot;
 
 
-            response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance", query)).Result;
+            response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/pendingTds", query)).Result;
            
             if (response.IsSuccessStatusCode)
             {
@@ -260,7 +261,14 @@ namespace AutoFill
         public string F16BRequestNo { get; set; }
         public string F16BCertificateNo { get; set; }
         public Guid F16BFileID { get; set; } = Guid.NewGuid();
-        public int RemittanceStatusID { get; set; }      
+        public int RemittanceStatusID { get; set; }
+
+        public virtual int UnitNo { get; set; }
+        public virtual string CustomerName { get; set; }
+        public virtual string Premises { get; set; }
+        public virtual int LotNo { get; set; }
+        public virtual DateTime DateOfBirth { get; set; }
+        public virtual string CustomerPAN { get; set; }
     }
 
     public class TdsRemittanceDto
@@ -301,6 +309,9 @@ namespace AutoFill
         public virtual string TracesPassword { get; set; }
         public virtual string AcknowledgementNo { get; set; }
         public virtual string AssessmentYear { get; set; }
+        public DateTime? F16BDateOfReq { get; set; }
+        public string F16BRequestNo { get; set; }
+        public virtual decimal ChallanAmount { get; set; }
     }
 
     public class AutoFillDto

@@ -168,7 +168,8 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountPaid}">
+                            
+                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountShare}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -184,7 +185,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Amount Share" Binding="{Binding AmountShare}">
+                            <DataGridTextColumn Header="TDS" Binding="{Binding TdsAmount}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -200,23 +201,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="TDS Share" Binding="{Binding TdsAmount}">
-                                <DataGridColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="40"/>
-                                        <Setter Property="FontSize" Value="16"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Foreground" Value="#828385"/>
-                                    </Style>
-                                </DataGridColumn.HeaderStyle>
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="Padding" Value="10,0,0,0" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn Header="TDS Share Interest" Binding="{Binding TdsInterest}">
+                            <DataGridTextColumn Header="TDS Interest" Binding="{Binding TdsInterest}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -248,7 +233,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Gross Share Amount" Binding="{Binding GrossAmount}">
+                            <DataGridTextColumn Header="Gross Amount" Binding="{Binding GrossAmount}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -402,38 +387,6 @@
                   IsIndeterminate = "True" />-->
                     <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
-                            <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
-                                <DataGridColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="40"/>
-                                        <Setter Property="FontSize" Value="16"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Foreground" Value="#828385"/>
-                                    </Style>
-                                </DataGridColumn.HeaderStyle>
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="Padding" Value="10,0,0,0" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                            <DataGridTextColumn  Header="Lot No" Binding="{Binding LotNo}"  >
-                                <DataGridColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="40"/>
-                                        <Setter Property="FontSize" Value="16"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Foreground" Value="#828385"/>
-                                    </Style>
-                                </DataGridColumn.HeaderStyle>
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="Padding" Value="10,0,0,0" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
                             <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -466,7 +419,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountPaid}">
+                            <DataGridTextColumn Header="Property Name" Binding="{Binding PropertyPremises}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -482,23 +435,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Amount Share" Binding="{Binding AmountShare}">
-                                <DataGridColumn.HeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Height" Value="40"/>
-                                        <Setter Property="FontSize" Value="16"/>
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                        <Setter Property="Foreground" Value="#828385"/>
-                                    </Style>
-                                </DataGridColumn.HeaderStyle>
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="VerticalAlignment" Value="Center" />
-                                        <Setter Property="Padding" Value="10,0,0,0" />
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>                           
-                            <DataGridTextColumn Header="Gross Share Amount" Binding="{Binding GrossAmount}">
+                            <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -514,7 +451,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Deduction Date" Binding="{ Binding DateOfDeduction,StringFormat=\{0:dd-MMM-yyyy\}}">
+                            <DataGridTextColumn  Header="Lot No" Binding="{Binding LotNo}"  >
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -530,6 +467,10 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                           
+                                                  
+                            
+                           
                             <DataGridTextColumn Header="Challan Amount" Binding="{Binding ChallanAmount}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -546,7 +487,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn Header="Challan No" Binding="{Binding ChallanNo}">
+                            <DataGridTextColumn Header="Acknowledgement No" Binding="{Binding ChallanAckNo}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
                                         <Setter Property="Height" Value="40"/>
@@ -562,6 +503,7 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                           
                             <DataGridTextColumn Header="Challan Date" Binding="{ Binding ChallanDate,StringFormat=\{0:dd-MMM-yyyy\}}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">
@@ -578,7 +520,56 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTextColumn Header="Request Date" Binding="{Binding F16BDateOfReq,StringFormat=\{0:dd-MMM-yyyy\}}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Request No" Binding="{Binding F16BRequestNo}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Status" Binding="{Binding RemittanceStatus}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                             <DataGridTemplateColumn>
+                                
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="RequestForm16B" Content="Request Form16B" Background="#f52f7b" Foreground="White" FontSize="14" FontWeight="Bold">
