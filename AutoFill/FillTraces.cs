@@ -11,19 +11,22 @@ namespace AutoFill
 {
     public class FillTraces : Base
     {
-        public static void AutoFillForm16B(TdsRemittanceDto tdsRemittanceDto) {
+        public static string AutoFillForm16B(TdsRemittanceDto tdsRemittanceDto) {
             try {
                 var driver = GetChromeDriver();
                 driver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/login.xhtml");
                 WaitForReady(driver);
                 FillLogin(driver, tdsRemittanceDto);
-                RquestForm16B(driver, tdsRemittanceDto);
+               var reqNo = RquestForm16B(driver, tdsRemittanceDto);
+                return reqNo;
             }
             catch (Exception e) {
+                MessageBox.Show("Request form16B is Failed");
             }
+            return "";
         }
 
-        public static void AutoFillDownload(TdsRemittanceDto tdsRemittanceDto,string requestNo )
+        public static void AutoFillDownload(TdsRemittanceDto tdsRemittanceDto,string requestNo,DateTime dateOfBirth )
         {
             try
             {
@@ -31,10 +34,18 @@ namespace AutoFill
                 driver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/login.xhtml");
                 WaitForReady(driver);
                 FillLogin(driver, tdsRemittanceDto);
-                DownloadForm(driver, requestNo);
+                var fileName= DownloadForm(driver, requestNo,tdsRemittanceDto.CustomerPAN);
+                if (fileName != "")
+                {
+
+                    UnzipFile unzipFile = new UnzipFile();
+                    unzipFile.extractFile(fileName, dateOfBirth.ToString("ddMMyyyy"));
+                }else
+                    MessageBox.Show("Form is not yet generated");
             }
             catch (Exception e)
             {
+                MessageBox.Show("Download form is Failed");
             }
         }
 
@@ -45,11 +56,11 @@ namespace AutoFill
             WaitForReady(webDriver);
 
             var userId = webDriver.FindElement(By.Id("userId"));
-            //  userId.SendKeys("AJLPG4797J");
+             //userId.SendKeys("ADMPC7474M");
             userId.SendKeys(tdsRemittanceDto.CustomerPAN);
             userId.SendKeys(Keys.Tab);
             var pwd = webDriver.FindElement(By.Id("psw"));
-            //  pwd.SendKeys("Girish&123");
+             // pwd.SendKeys("Rana&123");
             pwd.SendKeys(tdsRemittanceDto.TracesPassword);
 
             MessageBoxResult result = MessageBox.Show("Please fill the captcha and press Continue button.", "Confirmation", MessageBoxButton.YesNo);
@@ -62,7 +73,8 @@ namespace AutoFill
             WaitForReady(webDriver);           
         }
 
-        private static void RquestForm16B(IWebDriver webDriver, TdsRemittanceDto tdsRemittanceDto) {
+        private static string RquestForm16B(IWebDriver webDriver, TdsRemittanceDto tdsRemittanceDto) {
+
             webDriver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/tap/download16b.xhtml");
             WaitForReady(webDriver);
 
@@ -83,9 +95,17 @@ namespace AutoFill
             panOfSeller.SendKeys(tdsRemittanceDto.SellerPAN);
 
             var process = webDriver.FindElement(By.Id("clickGo"));
+            process.Click();
+            WaitForReady(webDriver);
+            var submitReq = webDriver.FindElement(By.Id("clickGo"));
+            submitReq.Click();
+            WaitForReady(webDriver);
+
+            var requestTxt = webDriver.FindElement(By.Id("hidReqId")).GetAttribute("value");
+            return requestTxt;
         }
 
-        private static void DownloadForm(IWebDriver webDriver, string requestNo)
+        private static string DownloadForm(IWebDriver webDriver, string requestNo,string pan)
         {
             webDriver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/tap/tpfiledwnld.xhtml");
             WaitForReady(webDriver);
@@ -101,15 +121,22 @@ namespace AutoFill
            
             var rows = webDriver.FindElements(By.ClassName("jqgrow"));
             if (rows.Count == 0)
-                return;
+                return "";
              
             var statusCell= rows[0].FindElements(By.TagName("td"))[6];
             if (statusCell.Text.Trim() != "Available")
-                return;
+                return "";
             statusCell.Click();
+
+            var assessCell = rows[0].FindElements(By.TagName("td"))[2].Text.Trim();
+            var ackNoCell = rows[0].FindElements(By.TagName("td"))[4].Text.Trim();
+
+            var fileName = pan.Substring(0, 3) + "xxxxx" + pan.Substring(8, 2)+"_"+assessCell+"_"+ackNoCell+"-"+1;
 
             var httpDownload = webDriver.FindElement(By.Id("downloadhttp"));
             httpDownload.Click();
+                       
+            return fileName;
         }
     }
 }

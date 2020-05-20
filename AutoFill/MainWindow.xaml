@@ -41,6 +41,7 @@
                         <RowDefinition Height="60"/>
                         <RowDefinition Height="50"/>
                         <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <!--<StackPanel Grid.Row="0" Grid.ColumnSpan="4" Orientation="Horizontal" >
@@ -82,8 +83,9 @@
                             </Style>
                         </TextBox.Resources>
                     </TextBox>
+                    <ComboBox Name="remitanceStatusddl" Grid.Row="2" Grid.Column="0" Height="35" Margin="10,0,10,10" />
 
-                    <Button x:Name="Search"  Content="Search" Grid.Row="2" Grid.Column="1" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                    <Button x:Name="Search"  Content="Search" Grid.Row="3" Grid.Column="1" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
                         <Button.Foreground>
                             <SolidColorBrush Color="White"/>
                         </Button.Foreground>
@@ -93,16 +95,16 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <Button x:Name="Reset" Content="Reset" Grid.Row="2" Grid.Column="2" Margin="0,-2,10,0" Click="Reset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                    <Button x:Name="Reset" Content="Reset" Grid.Row="3" Grid.Column="2" Margin="0,-2,10,0" Click="Reset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
                         <Button.Resources>
                             <Style TargetType="{x:Type Border}">
                                 <Setter Property="CornerRadius" Value="3"/>
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <ProgressBar Grid.Row="3" Grid.ColumnSpan="4"  x:Name = "progressbar1" Margin = "20,0,0,0" Height = "30"  Width="300"
+                    <ProgressBar Grid.Row="4" Grid.ColumnSpan="4"  x:Name = "progressbar1" Margin = "20,0,0,0" Height = "30"  Width="300"
                   IsIndeterminate = "True" />
-                    <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
+                    <DataGrid  Grid.Row="5" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
                             <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
                                 <DataGridColumn.HeaderStyle>
@@ -329,6 +331,7 @@
                         <RowDefinition Height="60"/>
                         <RowDefinition Height="50"/>
                         <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>                   
 
@@ -365,8 +368,8 @@
                             </Style>
                         </TextBox.Resources>
                     </TextBox>
-
-                    <Button x:Name="TracesSearch"  Content="Search" Grid.Row="2" Grid.Column="1" Margin="0,0,10,0" Click="TracesSearch_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                    <ComboBox Name="tracesRemitanceStatusddl" Grid.Row="2" Grid.Column="0" Height="35" Margin="10,0,10,10" />
+                    <Button x:Name="TracesSearch"  Content="Search" Grid.Row="3" Grid.Column="1" Margin="0,0,10,0" Click="TracesSearch_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
                         <Button.Foreground>
                             <SolidColorBrush Color="White"/>
                         </Button.Foreground>
@@ -376,7 +379,7 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <Button x:Name="TracesReset" Content="Reset" Grid.Row="2" Grid.Column="2" Margin="0,-2,10,0" Click="TracesReset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                    <Button x:Name="TracesReset" Content="Reset" Grid.Row="3" Grid.Column="2" Margin="0,-2,10,0" Click="TracesReset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
                         <Button.Resources>
                             <Style TargetType="{x:Type Border}">
                                 <Setter Property="CornerRadius" Value="3"/>
@@ -385,7 +388,7 @@
                     </Button>
                     <!--<ProgressBar Grid.Row="3" Grid.ColumnSpan="3"  x:Name = "progressbar2" Margin = "20,0,0,0" Height = "30"  Width="300"
                   IsIndeterminate = "True" />-->
-                    <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
+                    <DataGrid  Grid.Row="5" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">
                                 <DataGridColumn.HeaderStyle>

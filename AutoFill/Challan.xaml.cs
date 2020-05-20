@@ -47,7 +47,8 @@ namespace AutoFill
                 ChallanNo.Text = remittance.ChallanID;
                 AknowledgementNo.Text = remittance.ChallanAckNo;
                 ChallanAmount.Text = remittance.ChallanAmount.ToString();
-                CustomerPropertyFileDto customerPropertyFileDto= svc.GetFile(remittance.ChallanFileID.ToString());
+                // CustomerPropertyFileDto customerPropertyFileDto= svc.GetFile(remittance.ChallanFileID.ToString());
+                CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.ChallanBlobID.ToString());
                 if (customerPropertyFileDto != null)
                 {
                     FileNameLabel.Content = customerPropertyFileDto.FileName;
@@ -71,7 +72,7 @@ namespace AutoFill
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
                 var name = System.IO.Path.GetFileName(openFileDlg.FileName);
                 formData.Add(fileContent, "file", name);
-                svc.UploadFile(formData, remittance.ChallanFileID.ToString(), 7);
+                var bloblId= svc.UploadFile(formData, remittance.RemittanceID.ToString(), 7);
             }
         }
         private void Save_Click(object sender, RoutedEventArgs e)

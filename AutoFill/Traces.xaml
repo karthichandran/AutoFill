@@ -14,6 +14,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="45"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="50" />
@@ -21,15 +22,16 @@
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
-
-        <TextBox  x:Name="customerPan" VerticalContentAlignment="Center" Height="35"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
+        <Label  x:Name="panLbl" Height="30" Content="PAN No" Grid.Row="0" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <Label x:Name="dotlbl" Height="30" Content="Date of Birth" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <TextBox  x:Name="customerPan" VerticalContentAlignment="Center" Height="35"  Grid.Row="1" Grid.Column="0" Margin="10,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox  x:Name="dateOfBirth" VerticalContentAlignment="Center" Height="35"  Grid.Row="0" Grid.Column="1" Margin="0,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="dateOfBirth" VerticalContentAlignment="Center" Height="35"  Grid.Row="1" Grid.Column="1" Margin="0,0,10,10 " FontSize="16" IsReadOnly="True" Foreground="#ed2679" Padding="10,0,0,0" FontWeight="Bold"  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
@@ -37,26 +39,26 @@
             </TextBox.Resources>
         </TextBox>
         
-        <Label  x:Name="customerName" Height="30" Content="Request date" Grid.Row="1" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-        <Label x:Name="premises" Height="30" Content="Request No" Grid.Row="1" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-        <Label x:Name="unitNo" Height="30" Content="Certificate No" Grid.Row="1" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <Label  x:Name="customerName" Height="30" Content="Request date" Grid.Row="2" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <Label x:Name="premises" Height="30" Content="Request No" Grid.Row="2" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <Label x:Name="unitNo" Height="30" Content="Certificate No" Grid.Row="2" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
        
-        <DatePicker Grid.Row="2" Grid.Column="0" x:Name="RequestDate"  VerticalAlignment="Center" Height="35"   Margin="10,0,10,5 "  BorderBrush="#FFDFE1E2"></DatePicker>
-        <TextBox  x:Name="RequestNo" VerticalContentAlignment="Center" Height="35"  Grid.Row="2" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+        <DatePicker Grid.Row="3" Grid.Column="0" x:Name="RequestDate"  VerticalAlignment="Center" Height="35"   Margin="10,0,10,5 "  BorderBrush="#FFDFE1E2"></DatePicker>
+        <TextBox  x:Name="RequestNo" VerticalContentAlignment="Center" Height="35"  Grid.Row="3" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox  x:Name="CertificateNo" VerticalContentAlignment="Center" Height="35" Grid.Row="2" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+        <TextBox  x:Name="CertificateNo" VerticalContentAlignment="Center" Height="35" Grid.Row="3" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>        
-        <Button x:Name="upload"  Content="Upload" Grid.Row="3" Grid.Column="0" Margin="10,0,10,0" Click="Upload_Click" FontSize="17" FontWeight="Bold" Background="#949292" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+        <Button x:Name="upload"  Content="Upload" Grid.Row="4" Grid.Column="0" Margin="10,0,10,0" Click="Upload_Click" FontSize="17" FontWeight="Bold" Background="#949292" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
             <Button.Foreground>
                 <SolidColorBrush Color="White"/>
             </Button.Foreground>
@@ -66,9 +68,9 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Label  x:Name="FileNameLabel" Height="30"  Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <Label  x:Name="FileNameLabel" Height="30"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
 
-        <Button x:Name="save"  Content="Save" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" Click="Save_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+        <Button x:Name="save"  Content="Save" Grid.Row="5" Grid.Column="1" Margin="0,0,10,0" Click="Save_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
             <Button.Foreground>
                 <SolidColorBrush Color="White"/>
             </Button.Foreground>
@@ -78,7 +80,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="close" Content="Close" Grid.Row="4" Grid.Column="2" Margin="0,-2,10,0" Click="Close_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+        <Button x:Name="close" Content="Close" Grid.Row="5" Grid.Column="2" Margin="0,-2,10,0" Click="Close_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>

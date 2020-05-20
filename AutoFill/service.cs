@@ -17,14 +17,14 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-            client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+            //client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
            // client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-           // client.BaseAddress = new Uri("https://localhost:44301/api/");
+            client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit,string lot)
+        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit,string lot,string remittanceStatusID)
         {
             IList<TdsRemittanceDto> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
@@ -38,7 +38,8 @@ namespace AutoFill
                 query["unitNo"] = unit;
             if (!string.IsNullOrEmpty(lot))
                 query["lotNo"] = lot;
-
+            if (!string.IsNullOrEmpty(remittanceStatusID))
+                query["remittanceStatusID"] = remittanceStatusID;
 
             response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/pendingTds", query)).Result;
            
@@ -63,7 +64,21 @@ namespace AutoFill
             return remitance;
         }
 
-        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string lot)
+        public IList<RemittanceStatus> GetTdsRemitanceStatus()
+        {
+            IList<RemittanceStatus> remitance = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            response = client.GetAsync("RemittanceStatus").Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remitance = response.Content.ReadAsAsync<IList<RemittanceStatus>>().Result;
+            }
+            return remitance;
+        }
+
+        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string lot, string remittanceStatusID)
         {
             IList<TdsRemittanceDto> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
@@ -77,7 +92,8 @@ namespace AutoFill
                 query["unitNo"] = unit;
             if (!string.IsNullOrEmpty(lot))
                 query["lotNo"] = lot;
-
+            if (!string.IsNullOrEmpty(remittanceStatusID))
+                query["remittanceStatusID"] = remittanceStatusID;
 
             response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/processedList", query)).Result;
 
@@ -149,21 +165,21 @@ namespace AutoFill
             return false;
         }
 
-        public bool UploadFile(MultipartFormDataContent file,string ownershipId, int category) {
+        public string UploadFile(MultipartFormDataContent file,string remittanceId, int category) {
             HttpResponseMessage response = new HttpResponseMessage();
-            response = client.PostAsync("files/guid/"+ ownershipId+"/"+category, file).Result;
-            return false;
+            response = client.PostAsync("traces/"+ remittanceId + "/"+category, file).Result;
+            return response.Content.ToString();
         }
 
-        public CustomerPropertyFileDto GetFile(string ownershipId) {
-            IList<CustomerPropertyFileDto> customerPropertyFileDto = null;
+        public CustomerPropertyFileDto GetFile(string blobId) {
+            CustomerPropertyFileDto customerPropertyFileDto = null;
             HttpResponseMessage response = new HttpResponseMessage();
-            response = client.GetAsync("files/fileslist/" + ownershipId ).Result;
+            response = client.GetAsync("files/fileinfo/" + blobId).Result;
             if (response.IsSuccessStatusCode)
             {
-                customerPropertyFileDto = response.Content.ReadAsAsync<IList<CustomerPropertyFileDto>>().Result;
+                customerPropertyFileDto = response.Content.ReadAsAsync<CustomerPropertyFileDto>().Result;
             }
-            return customerPropertyFileDto.Count>0? customerPropertyFileDto[0]:null;
+            return customerPropertyFileDto;
 
             //if (response.IsSuccessStatusCode)
             //{
@@ -226,7 +242,12 @@ namespace AutoFill
         }
     }
 
+    public class RemittanceStatus
+    {        
+        public int RemittanceStatusID { get; set; }
+        public string RemittanceStatusText { get; set; }
 
+    }
     public class CustomerPropertyFileDto 
     {
         public int BlobID { get; set; }
@@ -256,12 +277,17 @@ namespace AutoFill
         public DateTime ChallanDate { get; set; }
         public string ChallanAckNo { get; set; }
         public decimal ChallanAmount { get; set; }
-        public Guid ChallanFileID { get; set; } = Guid.NewGuid();
+        [ObsoleteAttribute]
+        public Guid ChallanFileID { get; set; }
         public DateTime? F16BDateOfReq { get; set; }
         public string F16BRequestNo { get; set; }
         public string F16BCertificateNo { get; set; }
-        public Guid F16BFileID { get; set; } = Guid.NewGuid();
+        [ObsoleteAttribute]
+        public Guid F16BFileID { get; set; }
         public int RemittanceStatusID { get; set; }
+
+        public int? Form16BlobID { get; set; }
+        public int? ChallanBlobID { get; set; }
 
         public virtual int UnitNo { get; set; }
         public virtual string CustomerName { get; set; }

@@ -16,12 +16,14 @@ namespace AutoFill
         private service svc;
         private int transID;
         private decimal challanAmt;
+        private string requestNo;
         private RemittanceDto remittance;
-        public Traces(int trnasactionID, decimal challanAmount)
+        public Traces(int trnasactionID, decimal challanAmount,string reqNo="")
         {
             InitializeComponent();
             transID = trnasactionID;
             challanAmt = challanAmount;
+            requestNo = reqNo;
             svc = new service();
             LoadRemitance();
         }
@@ -38,10 +40,14 @@ namespace AutoFill
 
             customerPan.Text = remittance.CustomerPAN;
             dateOfBirth.Text = remittance.DateOfBirth.ToString("ddMMyyyy");
+            if (remittance.F16BRequestNo != "")
+                RequestNo.Text = remittance.F16BRequestNo;
+            else
+                RequestNo.Text = requestNo;
 
-            RequestNo.Text = remittance.F16BRequestNo;
             CertificateNo.Text = remittance.F16BCertificateNo;
-            CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.F16BFileID.ToString());
+            //CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.F16BFileID.ToString());
+            CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
             if (customerPropertyFileDto != null)
             {
                 FileNameLabel.Content = customerPropertyFileDto.FileName;
@@ -65,7 +71,7 @@ namespace AutoFill
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
                 var name = System.IO.Path.GetFileName(openFileDlg.FileName);
                 formData.Add(fileContent, "file", name);
-                svc.UploadFile(formData, remittance.F16BFileID.ToString(), 6);
+                var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 6);
             }
         }
         private void Save_Click(object sender, RoutedEventArgs e)

@@ -21,6 +21,7 @@ namespace AutoFill
     public partial class MainWindow : Window
     {
        private service svc;
+        private IList<RemittanceStatus> remittanceStatusList;
         public MainWindow()
         {
             InitializeComponent();
@@ -33,8 +34,16 @@ namespace AutoFill
 
         private void LoadRemitance() {
            
-            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance("","","","");
-            remitanceGrid.ItemsSource = remitanceList;          
+            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance("","","","","");
+            remitanceGrid.ItemsSource = remitanceList;
+            remittanceStatusList = svc.GetTdsRemitanceStatus();
+            remitanceStatusddl.ItemsSource = remittanceStatusList;
+            remitanceStatusddl.DisplayMemberPath = "RemittanceStatusText";
+            remitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
+
+            tracesRemitanceStatusddl.ItemsSource = remittanceStatusList;
+            tracesRemitanceStatusddl.DisplayMemberPath = "RemittanceStatusText";
+            tracesRemitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
         }
 
         private void AutoFillForm296Q(int clientPaymentTransactionID) {
@@ -102,10 +111,11 @@ namespace AutoFill
                 progressbar1.Visibility = Visibility.Hidden;
             }, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
         }
-        
+
         private void Search_Click(object sender, RoutedEventArgs e)
-        {
-             RemittanceSearchFilter();
+        {            
+              RemittanceSearchFilter();
+           
             //Challan challan = new Challan(12, 12);
             //challan.Owner = this;
             //challan.ShowDialog();
@@ -138,21 +148,23 @@ namespace AutoFill
             lotNoTxt.Text = "";            
         }
         private void RemittanceSearchFilter() {
+            var remiitanceStatusID = remitanceStatusddl.SelectedValue == null ? null : remitanceStatusddl.SelectedValue.ToString();
             var custName = customerNameTxt.Text;
             var premise = PremisesTxt.Text;
             var unit = unitNoTxt.Text;
             var lot = lotNoTxt.Text;
-            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance(custName, premise, unit, lot);
+            IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance(custName, premise, unit, lot, remiitanceStatusID);
             remitanceGrid.ItemsSource = remitanceList;
         }
 
         private void TracesSearchFilter()
         {
+            var remiitanceStatusID = tracesRemitanceStatusddl.SelectedValue == null ? null : tracesRemitanceStatusddl.SelectedValue.ToString();
             var custName = tracesCustomerNameTxt.Text;
             var premise = tracesPremisesTxt.Text;
             var unit = tracesUnitNoTxt.Text;
             var lot = tracesLotNoTxt.Text;
-            IList<TdsRemittanceDto> remitanceList = svc.GetTdsPaidList(custName, premise, unit, lot);
+            IList<TdsRemittanceDto> remitanceList = svc.GetTdsPaidList(custName, premise, unit, lot, remiitanceStatusID);
             //foreach (var model in remitanceList) {
             //    model.ChallanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
             //}
@@ -163,8 +175,17 @@ namespace AutoFill
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
             var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
-            if(tdsremittanceModel!=null)
-            FillTraces.AutoFillForm16B(tdsremittanceModel);
+            var reqNo = "";
+            if (tdsremittanceModel!=null)
+             reqNo = FillTraces.AutoFillForm16B(tdsremittanceModel);
+
+            if (reqNo != "")
+            {
+                var challanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
+                Traces traces = new Traces(model.ClientPaymentTransactionID, challanAmount,reqNo);
+                traces.Owner = this;
+                traces.ShowDialog();
+            }
         }
         private void DownLoadForm(object sender, RoutedEventArgs e)
         {
@@ -172,14 +193,14 @@ namespace AutoFill
             var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
             var remittanceModel = svc.GetRemitanceByTransID(model.ClientPaymentTransactionID);
             if (tdsremittanceModel != null)
-                FillTraces.AutoFillDownload(tdsremittanceModel, remittanceModel.F16BRequestNo);
+                FillTraces.AutoFillDownload(tdsremittanceModel, remittanceModel.F16BRequestNo,remittanceModel.DateOfBirth);
         }
 
         private void UpdateRemittance(object sender, RoutedEventArgs e)
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
             var challanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
-           Traces traces = new Traces(model.ClientPaymentTransactionID, challanAmount);
+            Traces traces = new Traces(model.ClientPaymentTransactionID, challanAmount);
             traces.Owner = this;
             traces.ShowDialog();
         }
