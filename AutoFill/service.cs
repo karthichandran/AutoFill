@@ -143,7 +143,7 @@ namespace AutoFill
             return remittanceDto;
         }
 
-        public bool SaveRemittance(RemittanceDto remittanceDto) {
+        public int SaveRemittance(RemittanceDto remittanceDto) {
             HttpResponseMessage response = new HttpResponseMessage();
             bool isNew = remittanceDto.RemittanceID == 0;
 
@@ -160,9 +160,12 @@ namespace AutoFill
 
             if (response.IsSuccessStatusCode)
             {
-                return true;
+                if (isNew)
+                return response.Content.ReadAsAsync<int>().Result;
+
+                return remittanceDto.RemittanceID;
             }
-            return false;
+            return 0;
         }
 
         public string UploadFile(MultipartFormDataContent file,string remittanceId, int category) {

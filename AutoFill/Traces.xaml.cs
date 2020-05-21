@@ -88,8 +88,8 @@ namespace AutoFill
                else
                     remittance.RemittanceStatusID = 3;
 
-                bool result = svc.SaveRemittance(remittance);
-                if (result)
+                int result = svc.SaveRemittance(remittance);
+                if (result!=0)
                 {
                     LoadRemitance();
                     MessageBox.Show("Request details are saved successfully");

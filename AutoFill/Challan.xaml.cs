@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -24,12 +25,17 @@ namespace AutoFill
         private int transID;
         private decimal challanAmt;
         private RemittanceDto remittance;
+        private UnzipFile unzipFile;
+        private MultipartFormDataContent formData;
+        private bool isFileBrowsed;
         public Challan(int trnasactionID,decimal challanAmount)
         {
             InitializeComponent();
             transID = trnasactionID;
             challanAmt = challanAmount;
             svc = new service();
+            unzipFile = new UnzipFile();
+            formData = null;
             LoadRemitance();
         }
 
@@ -39,10 +45,10 @@ namespace AutoFill
             {
                 ChallanAmount.Text = challanAmt.ToString();
                 ChallanDate.Text = DateTime.Now.Date.ToString();
-                upload.Visibility = Visibility.Hidden;
+              //  upload.Visibility = Visibility.Hidden;
             }
             else {
-                upload.Visibility = Visibility.Visible;
+               // upload.Visibility = Visibility.Visible;
                 ChallanDate.Text = remittance.ChallanDate.ToString();
                 ChallanNo.Text = remittance.ChallanID;
                 AknowledgementNo.Text = remittance.ChallanAckNo;
@@ -61,18 +67,23 @@ namespace AutoFill
             Microsoft.Win32.OpenFileDialog openFileDlg = new Microsoft.Win32.OpenFileDialog();
 
             Nullable<bool> result = openFileDlg.ShowDialog();
+            var filePath = openFileDlg.FileName;
+            var challanDet = unzipFile.getChallanDetails(filePath,remittance.CustomerPAN);
+            FileNameLabel.Content = openFileDlg.SafeFileName;
+            ChallanNo.Text = challanDet["serialNo"];
+            AknowledgementNo.Text = challanDet["acknowledge"];
+
             if (result == true)
             {
-                FileNameLabel.Content = openFileDlg.SafeFileName;
-                
-                var formData= new MultipartFormDataContent();
+                 formData = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(File.ReadAllBytes(openFileDlg.FileName));
                 var fileType = System.IO.Path.GetExtension(openFileDlg.FileName);
                 var contentType = svc.GetContentType(fileType);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
                 var name = System.IO.Path.GetFileName(openFileDlg.FileName);
                 formData.Add(fileContent, "file", name);
-                var bloblId= svc.UploadFile(formData, remittance.RemittanceID.ToString(), 7);
+                isFileBrowsed = true;
+              //  var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 7);
             }
         }
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -86,9 +97,13 @@ namespace AutoFill
                 remittance.ChallanID= ChallanNo.Text.Trim();
                 remittance.RemittanceStatusID = 2;
                
-                bool result = svc.SaveRemittance(remittance);
-                if (result)
+                int result = svc.SaveRemittance(remittance);
+
+                if (result!=0)
                 {
+                    if (isFileBrowsed)
+                        SaveFile(result);
+
                     LoadRemitance();
                     MessageBox.Show("Challan details are saved successfully");
                 }
@@ -97,7 +112,11 @@ namespace AutoFill
             }
         }
 
-        
+        private void SaveFile(int remittanceID)
+        {
+            var bloblId = svc.UploadFile(formData, remittanceID.ToString(), 7);
+        }
+
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;

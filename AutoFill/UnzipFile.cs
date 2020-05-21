@@ -7,8 +7,9 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas.Parser;
+using iTextSharp.text.pdf;
+using iTextSharp.text.io;
+using System.Text.RegularExpressions;
 
 namespace AutoFill
 {
@@ -48,19 +49,50 @@ namespace AutoFill
                     p.Start();
                 }
             }
-                       
-           
+                 
+        }
 
-            //// Open ZIP file
-            //using (FileStream zipFile = File.Open("compressed_files.zip", FileMode.Open))
-            //{
-            //    // Decrypt using password
-            //    using (var archive = new Archive(zipFile, new ArchiveLoadOptions() { DecryptionPassword = "p@s$" }))
-            //    {
-            //        // Extract files to folder
-            //        archive.ExtractToDirectory("Unzipped Files");
-            //    }
-            //}
+        public Dictionary<string,string> getChallanDetails(string filePath,string pan) {
+            Dictionary<string, string> challanDet=new Dictionary<string, string>();
+            PDFParser pdfParser = new PDFParser();
+            PdfReader reader = new PdfReader(@filePath);
+            var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            Console.WriteLine(text);
+            var serialNo = GetWordAfterMatch(text, "Challan Serial No.");
+            Console.WriteLine("Challan Serial NO :" + serialNo);
+            challanDet.Add("serialNo", serialNo.ToString());
+            var itns = GetWordAfterMatch(text, "Challan No./ITNS");
+            Console.WriteLine("ITNS :" + itns);
+
+            // var PAN = "BUZPP5880P"; //todo pass the pan number
+           // pan = "ADMPC7474M";
+            var tds = GetTDSConfirmationNo(text, pan);
+            Console.WriteLine("tds conf NO :" + tds);
+            challanDet.Add("acknowledge", tds.ToString());
+            Console.ReadLine();
+            return challanDet;
+        }
+
+        private  object GetWordAfterMatch(string text, string word)
+        {
+
+            var pattern = string.Format(@"\b\w*" + word + @"\w*\s+\w+\b");
+            string match = Regex.Match(text, @pattern).Groups[0].Value;
+            string[] words = match.Split(' ');
+            string wordAfter = words[words.Length - 1];
+
+            return wordAfter;
+        }
+
+        private  object GetTDSConfirmationNo(string text, string word)
+        {
+
+            var pattern = string.Format(word + @"?.*");
+            string match = Regex.Match(text, @pattern).Groups[0].Value.Substring(25, 100);
+            string[] words = match.Split(',');
+            string wordAfter = words[3];
+
+            return wordAfter;
         }
     }
 }
