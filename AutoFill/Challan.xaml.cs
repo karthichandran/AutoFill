@@ -58,6 +58,7 @@ namespace AutoFill
                 if (customerPropertyFileDto != null)
                 {
                     FileNameLabel.Content = customerPropertyFileDto.FileName;
+                    upload.IsEnabled = false;
                 }
             }
         }

@@ -18,8 +18,8 @@ namespace AutoFill
         {
             client = new HttpClient();
             //client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
-           // client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+            client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
+            //client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }

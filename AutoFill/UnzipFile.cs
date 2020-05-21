@@ -100,13 +100,23 @@ namespace AutoFill
             return wordAfter;
         }
 
-        public string GetCertificateNo(string filePath,string assessYear)
+        private object GetCertificateNoAfterMatch(string text, string word)
+        {
+            var pattern = string.Format(@"\b\w*" + word + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\b");
+            string match = Regex.Match(text, @pattern).Groups[0].Value;
+            string[] words = match.Split(' ');
+            string wordAfter = words[words.Length - 1];
+            return wordAfter;
+        }
+
+        public string GetCertificateNo(string filePath,string pan)
         {
             PDFParser pdfParser = new PDFParser();
             PdfReader reader = new PdfReader(@filePath);
             var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
             Console.WriteLine(text);
-            var certNo = GetWordAfterMatch(text, assessYear);
+         
+            var certNo = GetCertificateNoAfterMatch(text, pan);
            
             return certNo.ToString();
         }

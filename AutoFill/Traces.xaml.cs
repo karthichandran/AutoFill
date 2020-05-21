@@ -57,6 +57,7 @@ namespace AutoFill
             if (customerPropertyFileDto != null)
             {
                 FileNameLabel.Content = customerPropertyFileDto.FileName;
+                upload.IsEnabled = false;
             }
 
         }
@@ -71,8 +72,8 @@ namespace AutoFill
                 FileNameLabel.Content = openFileDlg.SafeFileName;
                 var filePath = openFileDlg.FileName;
                 var revisedDate = tdsRemittanceDto.RevisedDateOfPayment;
-                var assessYear = revisedDate.Value.Year.ToString()+"-"+ revisedDate.Value.AddYears(1).ToString("yy");
-                var certiNo = unzipFile.GetCertificateNo(filePath, assessYear);
+               // var assessYear = revisedDate.Value.Year.ToString()+"-"+ revisedDate.Value.AddYears(1).ToString("yy");
+                var certiNo = unzipFile.GetCertificateNo(filePath, tdsRemittanceDto.CustomerPAN);
                 CertificateNo.Text = certiNo;
                 formData = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(File.ReadAllBytes(openFileDlg.FileName));
