@@ -24,7 +24,7 @@ namespace AutoFill
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit,string lot,string remittanceStatusID)
+        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit,string lot)
         {
             IList<TdsRemittanceDto> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
@@ -38,8 +38,8 @@ namespace AutoFill
                 query["unitNo"] = unit;
             if (!string.IsNullOrEmpty(lot))
                 query["lotNo"] = lot;
-            if (!string.IsNullOrEmpty(remittanceStatusID))
-                query["remittanceStatusID"] = remittanceStatusID;
+            //if (!string.IsNullOrEmpty(remittanceStatusID))
+            //    query["remittanceStatusID"] = remittanceStatusID;
 
             response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/pendingTds", query)).Result;
            

@@ -14,22 +14,28 @@ namespace AutoFill
     public partial class Traces : Window
     {
         private service svc;
-        private int transID;
+       
         private decimal challanAmt;
         private string requestNo;
         private RemittanceDto remittance;
-        public Traces(int trnasactionID, decimal challanAmount,string reqNo="")
+        private TdsRemittanceDto tdsRemittanceDto;
+        private UnzipFile unzipFile;
+        private MultipartFormDataContent formData;
+        private bool isFileBrowsed;
+        public Traces(TdsRemittanceDto model,string reqNo="")
         {
             InitializeComponent();
-            transID = trnasactionID;
-            challanAmt = challanAmount;
+            tdsRemittanceDto = model;
+             challanAmt = model.TdsAmount + model.TdsInterest + model.LateFee; 
             requestNo = reqNo;
             svc = new service();
+            unzipFile = new UnzipFile();
+            formData = null;
             LoadRemitance();
         }
         private void LoadRemitance()
         {
-            remittance = svc.GetRemitanceByTransID(transID);
+            remittance = svc.GetRemitanceByTransID(tdsRemittanceDto.ClientPaymentTransactionID);
 
             if (remittance.F16BDateOfReq == null)
                 RequestDate.Text = DateTime.Now.Date.ToString();
@@ -46,7 +52,7 @@ namespace AutoFill
                 RequestNo.Text = requestNo;
 
             CertificateNo.Text = remittance.F16BCertificateNo;
-            //CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.F16BFileID.ToString());
+          
             CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
             if (customerPropertyFileDto != null)
             {
@@ -63,15 +69,19 @@ namespace AutoFill
             if (result == true)
             {
                 FileNameLabel.Content = openFileDlg.SafeFileName;
-
-                var formData = new MultipartFormDataContent();
+                var filePath = openFileDlg.FileName;
+                var revisedDate = tdsRemittanceDto.RevisedDateOfPayment;
+                var assessYear = revisedDate.Value.Year.ToString()+"-"+ revisedDate.Value.AddYears(1).ToString("yy");
+                var certiNo = unzipFile.GetCertificateNo(filePath, assessYear);
+                CertificateNo.Text = certiNo;
+                formData = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(File.ReadAllBytes(openFileDlg.FileName));
                 var fileType = System.IO.Path.GetExtension(openFileDlg.FileName);
                 var contentType = svc.GetContentType(fileType);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
                 var name = System.IO.Path.GetFileName(openFileDlg.FileName);
                 formData.Add(fileContent, "file", name);
-                var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 6);
+                isFileBrowsed = true;
             }
         }
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -79,7 +89,7 @@ namespace AutoFill
             if (Validate())
             {
                 if (remittance.ClientPaymentTransactionID == 0)
-                    remittance.ClientPaymentTransactionID = transID;
+                    remittance.ClientPaymentTransactionID = tdsRemittanceDto.ClientPaymentTransactionID;
                 remittance.F16BCertificateNo = CertificateNo.Text.Trim();
                 remittance.F16BDateOfReq = Convert.ToDateTime(RequestDate.Text.Trim());
                 remittance.F16BRequestNo = RequestNo.Text.Trim();
@@ -91,6 +101,8 @@ namespace AutoFill
                 int result = svc.SaveRemittance(remittance);
                 if (result!=0)
                 {
+                    if (isFileBrowsed)
+                        SaveFile();
                     LoadRemitance();
                     MessageBox.Show("Request details are saved successfully");
                 }
@@ -99,6 +111,10 @@ namespace AutoFill
             }
         }
 
+        private void SaveFile() {
+            var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 6);
+            isFileBrowsed = false;
+        }
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {

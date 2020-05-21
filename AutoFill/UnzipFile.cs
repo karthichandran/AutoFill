@@ -13,14 +13,14 @@ using System.Text.RegularExpressions;
 
 namespace AutoFill
 {
-    public  class UnzipFile
+    public class UnzipFile
     {
-       public UnzipFile() { 
+        public UnzipFile() {
         }
 
-        public void extractFile(string fileName,string pwd) {
+        public void extractFile(string fileName, string pwd) {
             // using Microsoft.Win32;
-          
+
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
             var filePath = @downloadPath + "\\" + fileName + ".zip";
@@ -28,7 +28,7 @@ namespace AutoFill
             while (!File.Exists(filePath))
             {
                 Thread.Sleep(1000);
-                var currentDate= DateTime.Now;
+                var currentDate = DateTime.Now;
                 if (currentDate.Subtract(startTime).TotalMinutes > 10)
                     break;
             }
@@ -40,7 +40,9 @@ namespace AutoFill
                 using (var archive = new Archive(zipFile, new ArchiveLoadOptions() { DecryptionPassword = pwd }))
                 {
                     // Extract files to folder
-                    archive.ExtractToDirectory(@downloadPath+ "\\" + fileName);
+                    archive.ExtractToDirectory(@downloadPath + "\\" + fileName);
+                  
+                    // Open a file
                     var p = new Process();
                     p.StartInfo = new ProcessStartInfo(@downloadPath + "\\" + fileName + "\\" + fileName + ".pdf")
                     {
@@ -49,23 +51,26 @@ namespace AutoFill
                     p.Start();
                 }
             }
-                 
+
         }
 
-        public Dictionary<string,string> getChallanDetails(string filePath,string pan) {
-            Dictionary<string, string> challanDet=new Dictionary<string, string>();
+        public Dictionary<string, string> getChallanDetails(string filePath, string pan) {
+            Dictionary<string, string> challanDet = new Dictionary<string, string>();
             PDFParser pdfParser = new PDFParser();
             PdfReader reader = new PdfReader(@filePath);
             var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
             Console.WriteLine(text);
             var serialNo = GetWordAfterMatch(text, "Challan Serial No.");
             Console.WriteLine("Challan Serial NO :" + serialNo);
+            var paninDoc = GetWordAfterMatch(text, "PAN:");
+            if (pan != paninDoc.ToString())
+                return challanDet;
             challanDet.Add("serialNo", serialNo.ToString());
             var itns = GetWordAfterMatch(text, "Challan No./ITNS");
             Console.WriteLine("ITNS :" + itns);
 
             // var PAN = "BUZPP5880P"; //todo pass the pan number
-           // pan = "ADMPC7474M";
+            // pan = "ADMPC7474M";
             var tds = GetTDSConfirmationNo(text, pan);
             Console.WriteLine("tds conf NO :" + tds);
             challanDet.Add("acknowledge", tds.ToString());
@@ -73,7 +78,7 @@ namespace AutoFill
             return challanDet;
         }
 
-        private  object GetWordAfterMatch(string text, string word)
+        private object GetWordAfterMatch(string text, string word)
         {
 
             var pattern = string.Format(@"\b\w*" + word + @"\w*\s+\w+\b");
@@ -84,7 +89,7 @@ namespace AutoFill
             return wordAfter;
         }
 
-        private  object GetTDSConfirmationNo(string text, string word)
+        private object GetTDSConfirmationNo(string text, string word)
         {
 
             var pattern = string.Format(word + @"?.*");
@@ -93,6 +98,17 @@ namespace AutoFill
             string wordAfter = words[3];
 
             return wordAfter;
+        }
+
+        public string GetCertificateNo(string filePath,string assessYear)
+        {
+            PDFParser pdfParser = new PDFParser();
+            PdfReader reader = new PdfReader(@filePath);
+            var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            Console.WriteLine(text);
+            var certNo = GetWordAfterMatch(text, assessYear);
+           
+            return certNo.ToString();
         }
     }
 }

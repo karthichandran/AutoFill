@@ -69,10 +69,14 @@ namespace AutoFill
             Nullable<bool> result = openFileDlg.ShowDialog();
             var filePath = openFileDlg.FileName;
             var challanDet = unzipFile.getChallanDetails(filePath,remittance.CustomerPAN);
-            FileNameLabel.Content = openFileDlg.SafeFileName;
+            if (challanDet.Count == 0) {
+                MessageBox.Show("PAN is not matched with uploaded file");
+                return;
+            }
+
             ChallanNo.Text = challanDet["serialNo"];
             AknowledgementNo.Text = challanDet["acknowledge"];
-
+            FileNameLabel.Content = openFileDlg.SafeFileName;
             if (result == true)
             {
                  formData = new MultipartFormDataContent();
@@ -115,6 +119,7 @@ namespace AutoFill
         private void SaveFile(int remittanceID)
         {
             var bloblId = svc.UploadFile(formData, remittanceID.ToString(), 7);
+            isFileBrowsed = false;
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
