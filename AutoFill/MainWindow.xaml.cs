@@ -37,6 +37,8 @@ namespace AutoFill
             IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance("","","","");
             remitanceGrid.ItemsSource = remitanceList;
             remittanceStatusList = svc.GetTdsRemitanceStatus();
+            var emptyObj = new RemittanceStatus() { RemittanceStatusText = "", RemittanceStatusID = -1 };
+            remittanceStatusList.Insert(0, emptyObj);
             //remitanceStatusddl.ItemsSource = remittanceStatusList;
             //remitanceStatusddl.DisplayMemberPath = "RemittanceStatusText";
             //remitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
@@ -132,6 +134,7 @@ namespace AutoFill
             tracesPremisesTxt.Text = "";
             tracesUnitNoTxt.Text = "";
             tracesLotNoTxt.Text = "";
+            tracesRemitanceStatusddl.SelectedValue = -1;
         }
 
         private void textboxKeydown(object sender, KeyEventArgs e)
@@ -159,7 +162,7 @@ namespace AutoFill
 
         private void TracesSearchFilter()
         {
-            var remiitanceStatusID = tracesRemitanceStatusddl.SelectedValue == null ? null : tracesRemitanceStatusddl.SelectedValue.ToString();
+            var remiitanceStatusID =( tracesRemitanceStatusddl.SelectedValue == null || Convert.ToInt32( tracesRemitanceStatusddl.SelectedValue) == -1) ? null : tracesRemitanceStatusddl.SelectedValue.ToString();
             var custName = tracesCustomerNameTxt.Text;
             var premise = tracesPremisesTxt.Text;
             var unit = tracesUnitNoTxt.Text;
