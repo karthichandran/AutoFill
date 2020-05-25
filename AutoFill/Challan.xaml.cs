@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -37,6 +38,7 @@ namespace AutoFill
             unzipFile = new UnzipFile();
             formData = null;
             LoadRemitance();
+            ChallanProgressbar.Visibility = Visibility.Hidden;
         }
 
        private void LoadRemitance() {
@@ -98,7 +100,7 @@ namespace AutoFill
               //  var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 7);
             }
         }
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private async void Save_Click(object sender, RoutedEventArgs e)
         {
             if (Validate()) {
                 if (remittance.ClientPaymentTransactionID == 0)
@@ -108,19 +110,29 @@ namespace AutoFill
                 remittance.ChallanDate = Convert.ToDateTime(ChallanDate.Text.Trim());
                 remittance.ChallanID= ChallanNo.Text.Trim();
                 remittance.RemittanceStatusID = 2;
-               
-                int result = svc.SaveRemittance(remittance);
 
-                if (result!=0)
+                ChallanProgressbar.Visibility = Visibility.Visible;
+                int result = 0;
+                await Task.Run(() =>
                 {
-                    if (isFileBrowsed)
-                        SaveFile(result);
+                     result = svc.SaveRemittance(remittance);
 
-                    LoadRemitance();
-                    MessageBox.Show("Challan details are saved successfully");
+                    if (result != 0)
+                    {
+                        if (isFileBrowsed)
+                            SaveFile(result);
+                        
+                        MessageBox.Show("Challan details are saved successfully");
+                    }
+                    else
+                        MessageBox.Show("Challan details are not saved ");
+
+                });
+                if (result != 0)
+                { 
+                    LoadRemitance(); 
                 }
-                else
-                    MessageBox.Show("Challan details are not saved ");
+                    ChallanProgressbar.Visibility = Visibility.Hidden;
             }
         }
 

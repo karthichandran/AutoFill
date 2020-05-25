@@ -63,8 +63,9 @@
             </Button.Resources>
         </Button>
         <Label  x:Name="FileNameLabel" Height="30"  Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-
-        <Button x:Name="save"  Content="Save" Grid.Row="3" Grid.Column="1" Margin="0,0,10,0" Click="Save_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+        <ProgressBar Grid.Row="3" Grid.ColumnSpan="4"  x:Name = "ChallanProgressbar"  Height = "20"  Width="250"
+                  IsIndeterminate = "True" />
+        <Button x:Name="save"  Content="Save" Grid.Row="4" Grid.Column="1" Margin="0,0,10,0" Click="Save_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
             <Button.Foreground>
                 <SolidColorBrush Color="White"/>
             </Button.Foreground>
@@ -74,7 +75,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="close" Content="Close" Grid.Row="3" Grid.Column="2" Margin="0,-2,10,0" Click="Close_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+        <Button x:Name="close" Content="Close" Grid.Row="4" Grid.Column="2" Margin="0,-2,10,0" Click="Close_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>

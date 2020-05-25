@@ -387,8 +387,8 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <!--<ProgressBar Grid.Row="3" Grid.ColumnSpan="3"  x:Name = "progressbar2" Margin = "20,0,0,0" Height = "30"  Width="300"
-                  IsIndeterminate = "True" />-->
+                    <ProgressBar Grid.Row="4" Grid.ColumnSpan="4"  x:Name = "TracesProgressbar" Margin = "20,0,0,0" Height = "30"  Width="300"
+                  IsIndeterminate = "True" />
                     <DataGrid  Grid.Row="5" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">

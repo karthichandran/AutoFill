@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace AutoFill
@@ -32,6 +33,7 @@ namespace AutoFill
             unzipFile = new UnzipFile();
             formData = null;
             LoadRemitance();
+            TraceProgressbar.Visibility = Visibility.Hidden;
         }
         private void LoadRemitance()
         {
@@ -85,7 +87,7 @@ namespace AutoFill
                 isFileBrowsed = true;
             }
         }
-        private void Save_Click(object sender, RoutedEventArgs e)
+        private async void Save_Click(object sender, RoutedEventArgs e)
         {
             if (Validate())
             {
@@ -99,16 +101,26 @@ namespace AutoFill
                else
                     remittance.RemittanceStatusID = 3;
 
-                int result = svc.SaveRemittance(remittance);
+                TraceProgressbar.Visibility = Visibility.Visible;
+                int result = 0;
+                await Task.Run(() =>
+                {
+                    result = svc.SaveRemittance(remittance);
                 if (result!=0)
                 {
                     if (isFileBrowsed)
                         SaveFile();
-                    LoadRemitance();
+
                     MessageBox.Show("Request details are saved successfully");
                 }
                 else
                     MessageBox.Show("Request details are not saved ");
+                });
+                if (result != 0)
+                {
+                    LoadRemitance();
+                }
+                TraceProgressbar.Visibility = Visibility.Hidden;
             }
         }
 
