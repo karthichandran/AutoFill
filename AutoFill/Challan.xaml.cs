@@ -80,9 +80,9 @@ namespace AutoFill
             FileNameLabel.Content = openFileDlg.SafeFileName;
             ChallanDate.Text = DateTime.ParseExact(challanDet["tenderDate"], "ddMMyy", null).ToString();
             
-            var challanAmt = Convert.ToInt32(remittance.ChallanAmount);
+            var challanAmount = Convert.ToInt32(challanAmt);
 
-            if (challanAmt.ToString()!= challanDet["challanAmount"])
+            if (challanAmount.ToString()!= challanDet["challanAmount"])
                 MessageBox.Show("Challan Amount is not matching");
 
             if (result == true)
