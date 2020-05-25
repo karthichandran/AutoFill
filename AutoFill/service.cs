@@ -199,10 +199,21 @@ namespace AutoFill
             if (response.IsSuccessStatusCode)
             {
                 var ms = response.Content.ReadAsStreamAsync();
-                var fs = File.Create(fileName);
-                
+                var fs = File.Create(fileName);                
             }
+        }
 
+        public bool DeleteRemittance(int remiitanceID)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.DeleteAsync("traces/" + remiitanceID).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+
+            }
+            return false;
         }
 
         public string GetContentType(string fileExtension)

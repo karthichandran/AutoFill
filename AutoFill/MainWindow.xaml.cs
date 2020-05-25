@@ -221,6 +221,64 @@ namespace AutoFill
             traces.ShowDialog();
         }
 
-       
+        private async void DeleteFromRemittance(object sender, RoutedEventArgs e)
+        {
+            var model = (sender as Button).DataContext as TdsRemittanceDto;
+            var remittanceModel = svc.GetRemitanceByTransID(model.ClientPaymentTransactionID);
+            if (remittanceModel.RemittanceID == 0) {
+                MessageBox.Show("Remittance record is not yet created");
+                return;
+            }
+            var resultMsg= MessageBox.Show("Are you sure to delete this?", "alert", MessageBoxButton.OKCancel);
+            if (resultMsg == MessageBoxResult.OK) {
+                progressbar1.Visibility = Visibility.Visible;
+                bool status = false;
+                await Task.Run(() => {
+                    status = svc.DeleteRemittance(remittanceModel.RemittanceID);
+                });
+                progressbar1.Visibility = Visibility.Hidden;
+                if (status)
+                {
+                    MessageBox.Show("Remittance is deleted successfully");
+                    RemittanceSearchFilter();
+                }
+                else
+                {
+                    MessageBox.Show("Remittance is not deleted.");
+                }
+                
+            }
+        }
+
+        private async void DeleteFromTrace(object sender, RoutedEventArgs e)
+        {
+            var model = (sender as Button).DataContext as TdsRemittanceDto;
+            var remittanceModel = svc.GetRemitanceByTransID(model.ClientPaymentTransactionID);
+            if (remittanceModel.RemittanceID == 0)
+            {
+                MessageBox.Show("Remittance record is not yet created");
+                return;
+            }
+            var resultMsg = MessageBox.Show("Are you sure to delete this?", "alert", MessageBoxButton.OKCancel);
+            if (resultMsg == MessageBoxResult.OK)
+            {
+                TracesProgressbar.Visibility = Visibility.Visible;
+                bool status = false ;
+                await Task.Run(() => {
+                    status= svc.DeleteRemittance(remittanceModel.RemittanceID);
+                });
+                TracesProgressbar.Visibility = Visibility.Hidden;
+                if (status)
+                {
+                    MessageBox.Show("Remittance is deleted successfully");
+                    TracesSearchFilter();
+                }
+                else
+                {
+                    MessageBox.Show("Remittance is not deleted.");
+                }
+            }
+        }
+
     }
 }
