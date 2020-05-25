@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace AutoFill
     {
        private service svc;
         private IList<RemittanceStatus> remittanceStatusList;
+        BackgroundWorker worker;
         public MainWindow()
         {
             InitializeComponent();
@@ -38,33 +40,29 @@ namespace AutoFill
             remitanceGrid.ItemsSource = remitanceList;
             remittanceStatusList = svc.GetTdsRemitanceStatus();
             var emptyObj = new RemittanceStatus() { RemittanceStatusText = "", RemittanceStatusID = -1 };
-            remittanceStatusList.Insert(0, emptyObj);
-            //remitanceStatusddl.ItemsSource = remittanceStatusList;
-            //remitanceStatusddl.DisplayMemberPath = "RemittanceStatusText";
-            //remitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
+            remittanceStatusList.Insert(0, emptyObj);            
 
             tracesRemitanceStatusddl.ItemsSource = remittanceStatusList;
             tracesRemitanceStatusddl.DisplayMemberPath = "RemittanceStatusText";
             tracesRemitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
         }
 
-        private void AutoFillForm296Q(int clientPaymentTransactionID) {
+        private bool AutoFillForm296Q(int clientPaymentTransactionID) {
             AutoFillDto autoFillDto = svc.GetAutoFillData(clientPaymentTransactionID);
             if (autoFillDto == null)
             {
                 MessageBox.Show("Data is not available to proceed Form26QB", "alert", MessageBoxButton.OK);
-                return;
+                return false; ;
             }
            
-            FillForm26Q.AutoFillForm26QB(autoFillDto);           
+            FillForm26Q.AutoFillForm26QB(autoFillDto);
+            return true;
         }
 
         private void proceedForm(object sender, RoutedEventArgs e)
         {
-            progressbar1.Visibility = Visibility.Visible;         
-
             var model = (sender as Button).DataContext as TdsRemittanceDto;
-            MethodThatWillCallComObject(model);         
+            MethodThatWillCallComObject(AutoFillForm296Q,model.ClientPaymentTransactionID);         
         }
 
         private void TdsPaid(object sender, RoutedEventArgs e)
@@ -74,39 +72,28 @@ namespace AutoFill
             Challan challan = new Challan(model.ClientPaymentTransactionID, challanAmount);
             challan.Owner = this;
             challan.ShowDialog();
-
-            //MessageBoxResult result = MessageBox.Show("Are you sure want to change the status?", "Confirmation", MessageBoxButton.YesNo);
-            //if (result == MessageBoxResult.No)
-            //    return;
-
-            //var model = (sender as Button).DataContext as TdsRemittanceDto;
-            //bool isSucess = false;
-            //progressbar1.Visibility = Visibility.Visible;
-
-            //System.Threading.Tasks.Task.Factory.StartNew(() =>
-            //{            
-            //    isSucess = svc.SetToTdsPaid(model.ClientPaymentTransactionID);               
-
-            //}).ContinueWith(t =>
-            //{
-            //    if (isSucess)
-            //    {
-            //        RemittanceSearchFilter();
-            //        MessageBox.Show("Status is updated");
-            //    }
-            //    else
-            //        MessageBox.Show("Unable to Update Status");
-            //    progressbar1.Visibility = Visibility.Hidden;
-            //}, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());           
-           
         }
 
-        private void MethodThatWillCallComObject(TdsRemittanceDto model)
+        //private void MethodThatWillCallComObject(TdsRemittanceDto model)
+        //{
+        //    progressbar1.Visibility = Visibility.Visible;
+        //    System.Threading.Tasks.Task.Factory.StartNew(() =>
+        //    {
+        //        //this will call in background thread               
+        //        AutoFillForm296Q(model.ClientPaymentTransactionID);
+
+        //    }).ContinueWith(t =>
+        //    {
+        //        progressbar1.Visibility = Visibility.Hidden;
+        //    }, System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext());
+        //}
+
+        private void MethodThatWillCallComObject(Func<int,bool> function,int id)
         {
+            progressbar1.Visibility = Visibility.Visible;
             System.Threading.Tasks.Task.Factory.StartNew(() =>
             {
-                //this will call in background thread               
-                AutoFillForm296Q(model.ClientPaymentTransactionID);
+                function(id);
 
             }).ContinueWith(t =>
             {
@@ -115,12 +102,8 @@ namespace AutoFill
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
-        {            
-              RemittanceSearchFilter();
-           
-            //Challan challan = new Challan(12, 12);
-            //challan.Owner = this;
-            //challan.ShowDialog();
+        {
+             RemittanceSearchFilter();           
         }
 
         private void TracesSearch_Click(object sender, RoutedEventArgs e)
@@ -151,13 +134,13 @@ namespace AutoFill
             lotNoTxt.Text = "";            
         }
         private void RemittanceSearchFilter() {
-           // var remiitanceStatusID = remitanceStatusddl.SelectedValue == null ? null : remitanceStatusddl.SelectedValue.ToString();
             var custName = customerNameTxt.Text;
             var premise = PremisesTxt.Text;
             var unit = unitNoTxt.Text;
             var lot = lotNoTxt.Text;
+         
             IList<TdsRemittanceDto> remitanceList = svc.GetTdsRemitance(custName, premise, unit, lot);
-            remitanceGrid.ItemsSource = remitanceList;
+            remitanceGrid.ItemsSource = remitanceList;                   
         }
 
         private void TracesSearchFilter()
@@ -208,5 +191,7 @@ namespace AutoFill
             traces.Owner = this;
             traces.ShowDialog();
         }
+
+       
     }
 }

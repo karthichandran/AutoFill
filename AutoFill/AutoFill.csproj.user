@@ -15,6 +15,9 @@
     <Compile Update="Traces.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ShowProgress.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
@@ -24,6 +27,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Traces.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ShowProgress.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

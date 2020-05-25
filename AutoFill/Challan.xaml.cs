@@ -78,6 +78,13 @@ namespace AutoFill
             ChallanNo.Text = challanDet["serialNo"];
             AknowledgementNo.Text = challanDet["acknowledge"];
             FileNameLabel.Content = openFileDlg.SafeFileName;
+            ChallanDate.Text = DateTime.ParseExact(challanDet["tenderDate"], "ddMMyy", null).ToString();
+            
+            var challanAmt = Convert.ToInt32(remittance.ChallanAmount);
+
+            if (challanAmt.ToString()!= challanDet["challanAmount"])
+                MessageBox.Show("Challan Amount is not matching");
+
             if (result == true)
             {
                  formData = new MultipartFormDataContent();

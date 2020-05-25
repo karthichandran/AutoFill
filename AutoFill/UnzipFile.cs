@@ -68,7 +68,10 @@ namespace AutoFill
             challanDet.Add("serialNo", serialNo.ToString());
             var itns = GetWordAfterMatch(text, "Challan No./ITNS");
             Console.WriteLine("ITNS :" + itns);
-
+            var tenderDate = GetWordAfterMatch(text, "Tender Date");
+            challanDet.Add("tenderDate", tenderDate.ToString());
+            var challamAmount = GetWordAfterMatch(text, "Rs. :");
+            challanDet.Add("challanAmount", challamAmount.ToString());
             // var PAN = "BUZPP5880P"; //todo pass the pan number
             // pan = "ADMPC7474M";
             var tds = GetTDSConfirmationNo(text, pan);
