@@ -280,5 +280,26 @@ namespace AutoFill
             }
         }
 
+        private async void SendMail(object sender, RoutedEventArgs e)
+        {
+            var model = (sender as Button).DataContext as TdsRemittanceDto;
+            var challanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
+            bool status = false;
+            TracesProgressbar.Visibility = Visibility.Visible;
+            await Task.Run(() => {
+                status = svc.SendMail(model.ClientPaymentTransactionID);
+            });
+            TracesProgressbar.Visibility = Visibility.Hidden;
+            if (status)
+            {
+                MessageBox.Show("Mail is delivered");
+                TracesSearchFilter();
+            }
+            else
+            {
+                MessageBox.Show("Failed to send mail");
+            }
+        }
+
     }
 }

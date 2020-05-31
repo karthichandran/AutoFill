@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Support.UI;
 namespace AutoFill
 {
@@ -51,14 +53,25 @@ namespace AutoFill
             options.AddArgument("--disable-infobars");
             options.AddArgument("--disable-dev-shm-usage");
             options.AddArgument("--start-maximized");
+
             // options.BinaryLocation = AppDomain.CurrentDomain.BaseDirectory+"chromedriver.exe";
-           // options.AddArgument("--remote-debugging-port=9222");
+            // options.AddArgument("--remote-debugging-port=9222");
 
             //var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
+
             ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);
+
             return driver;
+            //var ieDriver = GetIEDriver();
+            //return ieDriver;
         }
 
+        protected static IWebDriver GetIEDriver() {
+
+           // InternetExplorerDriver ie = new InternetExplorerDriver();
+            EdgeDriver edge = new EdgeDriver();
+            return edge;
+        }
 
     }
 }
