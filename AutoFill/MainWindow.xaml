@@ -644,7 +644,7 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>-->
 
-                            <DataGridTemplateColumn>
+                            <!--<DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="SendMail" Content=" Mail " Background="#f2ad22" Foreground="White" FontSize="14" FontWeight="Bold">
@@ -657,7 +657,7 @@
                                         </Button>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                            </DataGridTemplateColumn>-->
                         </DataGrid.Columns>
                     </DataGrid>
 

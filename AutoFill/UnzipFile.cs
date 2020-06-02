@@ -49,6 +49,9 @@ namespace AutoFill
                         UseShellExecute = true
                     };
                     p.Start();
+                    var sourceFile = @downloadPath + "\\" + fileName + "\\" + fileName + ".pdf";
+                    var destFile = @downloadPath + "\\" +  fileName + ".pdf";
+                    System.IO.File.Copy(sourceFile, destFile, true);
                 }
             }
 

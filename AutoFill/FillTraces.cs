@@ -65,6 +65,8 @@ namespace AutoFill
 
             MessageBoxResult result = MessageBox.Show("Please fill the captcha and press Continue button.", "Confirmation", MessageBoxButton.YesNo);
             WaitForReady(webDriver);
+            webDriver.FindElement(By.Id("clickLogin")).Click();
+            WaitForReady(webDriver);
             var confirmationChk= webDriver.FindElement(By.Id("Details"));
             confirmationChk.Click();
             WaitFor(webDriver, 2);
