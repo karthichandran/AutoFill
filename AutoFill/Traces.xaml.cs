@@ -54,8 +54,15 @@ namespace AutoFill
                 RequestNo.Text = requestNo;
 
             CertificateNo.Text = remittance.F16BCertificateNo;
-          
-            CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
+
+            if (remittance.F16CreditedAmount != null)
+                PaidAmount.Text = remittance.F16CreditedAmount.ToString();
+            if (remittance.F16CustName != null)
+                CustomerName.Text = remittance.F16CustName;
+            if (remittance.F16UpdateDate != null)
+                UpdatedDate.Text = remittance.F16UpdateDate.Value.ToString("dd-MMM-yyyy");
+
+                CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
             if (customerPropertyFileDto != null)
             {
                 FileNameLabel.Content = customerPropertyFileDto.FileName;
@@ -75,8 +82,13 @@ namespace AutoFill
                 var filePath = openFileDlg.FileName;
                 var revisedDate = tdsRemittanceDto.RevisedDateOfPayment;
                // var assessYear = revisedDate.Value.Year.ToString()+"-"+ revisedDate.Value.AddYears(1).ToString("yy");
-                var certiNo = unzipFile.GetCertificateNo(filePath, tdsRemittanceDto.CustomerPAN);
-                CertificateNo.Text = certiNo;
+                var form16bDetail = unzipFile.GetForm16bDetailsFromPDF(filePath, tdsRemittanceDto.CustomerPAN);
+                CertificateNo.Text = form16bDetail["certNo"];
+                CustomerName.Text = form16bDetail["name"];
+                PaidAmount.Text= form16bDetail["amount"];
+                var updatDate = DateTime.ParseExact(form16bDetail["paymentDate"], "dd-MMM-yyyy",null);
+                UpdatedDate.Text = updatDate.ToString("dd-MMM-yyyy");
+
                 formData = new MultipartFormDataContent();
                 var fileContent = new ByteArrayContent(File.ReadAllBytes(openFileDlg.FileName));
                 var fileType = System.IO.Path.GetExtension(openFileDlg.FileName);
@@ -100,6 +112,12 @@ namespace AutoFill
                 remittance.RemittanceStatusID = 4;
                else
                     remittance.RemittanceStatusID = 3;
+
+                remittance.F16CustName = CustomerName.Text.Trim();
+                if(PaidAmount.Text!="")
+                remittance.F16CreditedAmount =Convert.ToDecimal( PaidAmount.Text.Trim());
+                if(UpdatedDate.Text!="")
+                    remittance.F16UpdateDate = Convert.ToDateTime(UpdatedDate.Text.Trim());
 
                 TraceProgressbar.Visibility = Visibility.Visible;
                 int result = 0;

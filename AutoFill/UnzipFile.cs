@@ -10,6 +10,7 @@ using System.Threading;
 using iTextSharp.text.pdf;
 using iTextSharp.text.io;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace AutoFill
 {
@@ -24,12 +25,13 @@ namespace AutoFill
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
             var filePath = @downloadPath + "\\" + fileName + ".zip";
+            downloadPath += @"\REproFiles";
             var startTime = DateTime.Now;
             while (!File.Exists(filePath))
             {
                 Thread.Sleep(1000);
                 var currentDate = DateTime.Now;
-                if (currentDate.Subtract(startTime).TotalMinutes > 10)
+                if (currentDate.Subtract(startTime).TotalMinutes > 3)
                     break;
             }
 
@@ -40,21 +42,12 @@ namespace AutoFill
                 using (var archive = new Archive(zipFile, new ArchiveLoadOptions() { DecryptionPassword = pwd }))
                 {
                     // Extract files to folder
-                    archive.ExtractToDirectory(@downloadPath + "\\" + fileName);
-                  
-                    // Open a file
-                    var p = new Process();
-                    p.StartInfo = new ProcessStartInfo(@downloadPath + "\\" + fileName + "\\" + fileName + ".pdf")
-                    {
-                        UseShellExecute = true
-                    };
-                    p.Start();
-                    var sourceFile = @downloadPath + "\\" + fileName + "\\" + fileName + ".pdf";
-                    var destFile = @downloadPath + "\\" +  fileName + ".pdf";
-                    System.IO.File.Copy(sourceFile, destFile, true);
+                    archive.ExtractToDirectory(@downloadPath);
                 }
             }
-
+            MessageBoxResult result = MessageBox.Show(String.Format("Form 16B with file name {0} downloaded successfully", fileName), "Confirmation",
+                                                     MessageBoxButton.OK, MessageBoxImage.Information,
+                                                     MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
         }
 
         public Dictionary<string, string> getChallanDetails(string filePath, string pan) {
@@ -115,16 +108,43 @@ namespace AutoFill
             return wordAfter;
         }
 
-        public string GetCertificateNo(string filePath,string pan)
+        public Dictionary<string, string> GetForm16bDetailsFromPDF(string filePath,string pan)
         {
+             pan = "BMKPP9430Q";
+            Dictionary<string, string> form16bDet = new Dictionary<string, string>();
             PDFParser pdfParser = new PDFParser();
             PdfReader reader = new PdfReader(@filePath);
             var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
             Console.WriteLine(text);
-         
             var certNo = GetCertificateNoAfterMatch(text, pan);
-           
-            return certNo.ToString();
+            form16bDet.Add("certNo", certNo.ToString());
+
+            var datePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+\b");
+            string match = Regex.Match(text, @datePattern).Groups[0].Value;
+            string[] dateArry = match.Split(' ');
+            string date = dateArry[dateArry.Length - 1];
+            form16bDet.Add("paymentDate", date);
+
+            var namePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+[\s+\w+]*,");
+            string nameMatch = Regex.Match(text, @namePattern).Groups[0].Value;
+            string[] nameArray = nameMatch.Split(' ');
+            string name = "";
+            int inx = nameArray.Length - 5;
+            for (int i = 0; i < inx-1; i++)
+            {
+                name += nameArray[5 + i] + " ";
+            }
+            form16bDet.Add("name", name.Split(',')[0]);
+
+            var amountPattern = string.Format(@"[0-9]+\.[0-9]*");
+            string amountMatch = Regex.Match(text, @amountPattern).Groups[0].Value;
+            string[] amountArry = amountMatch.Split(' ');
+            string amount = amountArry[0];
+            form16bDet.Add("amount", amount);
+
+            return form16bDet;
         }
+
+       
     }
 }

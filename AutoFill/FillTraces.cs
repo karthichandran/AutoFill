@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -21,7 +22,7 @@ namespace AutoFill
                 return reqNo;
             }
             catch (Exception e) {
-                MessageBox.Show("Request form16B is Failed");
+                MessageBox.Show("Request form16B Failed");
             }
             return "";
         }
@@ -45,7 +46,7 @@ namespace AutoFill
             }
             catch (Exception e)
             {
-                MessageBox.Show("Download form is Failed");
+                MessageBox.Show("Download form Failed");
             }
         }
 
@@ -63,10 +64,14 @@ namespace AutoFill
              // pwd.SendKeys("Rana&123");
             pwd.SendKeys(tdsRemittanceDto.TracesPassword);
 
-            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press Continue button.", "Confirmation", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+                                                      MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly );
+
             WaitForReady(webDriver);
             webDriver.FindElement(By.Id("clickLogin")).Click();
             WaitForReady(webDriver);
+            Thread.Sleep(1500);
             var confirmationChk= webDriver.FindElement(By.Id("Details"));
             confirmationChk.Click();
             WaitFor(webDriver, 2);

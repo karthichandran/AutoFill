@@ -323,6 +323,10 @@ namespace AutoFill
         public virtual int LotNo { get; set; }
         public virtual DateTime DateOfBirth { get; set; }
         public virtual string CustomerPAN { get; set; }
+
+        public string F16CustName { get; set; }
+        public DateTime? F16UpdateDate { get; set; }
+        public decimal? F16CreditedAmount { get; set; }
     }
 
     public class TdsRemittanceDto
