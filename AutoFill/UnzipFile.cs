@@ -110,7 +110,7 @@ namespace AutoFill
 
         public Dictionary<string, string> GetForm16bDetailsFromPDF(string filePath,string pan)
         {
-             pan = "BMKPP9430Q";
+            // pan = "AMSPA9519Q";
             Dictionary<string, string> form16bDet = new Dictionary<string, string>();
             PDFParser pdfParser = new PDFParser();
             PdfReader reader = new PdfReader(@filePath);

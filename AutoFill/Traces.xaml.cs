@@ -23,6 +23,7 @@ namespace AutoFill
         private UnzipFile unzipFile;
         private MultipartFormDataContent formData;
         private bool isFileBrowsed;
+        private CustomerPropertyFileDto customerPropertyFileDto;
         public Traces(TdsRemittanceDto model,string reqNo="")
         {
             InitializeComponent();
@@ -44,7 +45,7 @@ namespace AutoFill
             else
                 RequestDate.Text = remittance.F16BDateOfReq.ToString();
 
-            upload.Visibility = Visibility.Visible;
+          //  upload.Visibility = Visibility.Visible;
 
             customerPan.Text = remittance.CustomerPAN;
             dateOfBirth.Text = remittance.DateOfBirth.ToString("ddMMyyyy");
@@ -62,11 +63,11 @@ namespace AutoFill
             if (remittance.F16UpdateDate != null)
                 UpdatedDate.Text = remittance.F16UpdateDate.Value.ToString("dd-MMM-yyyy");
 
-                CustomerPropertyFileDto customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
+                customerPropertyFileDto = svc.GetFile(remittance.Form16BlobID.ToString());
             if (customerPropertyFileDto != null)
             {
                 FileNameLabel.Content = customerPropertyFileDto.FileName;
-                upload.IsEnabled = false;
+              //  upload.IsEnabled = false;
             }
 
         }
@@ -99,6 +100,12 @@ namespace AutoFill
                 isFileBrowsed = true;
             }
         }
+
+        private void Download_Click(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
             if (Validate())

@@ -93,6 +93,16 @@
             </Button.Resources>
         </Button>
         <Label  x:Name="FileNameLabel" Height="30"  Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+        <!--<Button x:Name="download"  Content="Upload" Grid.Row="6" Grid.Column="3" Margin="10,0,10,0" Click="Download_Click" FontSize="17" FontWeight="Bold"  Background="#08bd2c" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+            <Button.Foreground>
+                <SolidColorBrush Color="White"/>
+            </Button.Foreground>
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </Button.Resources>
+        </Button>-->
         <ProgressBar Grid.Row="7" Grid.ColumnSpan="4"  x:Name = "TraceProgressbar"  Height = "20"  Width="250"
                   IsIndeterminate = "True" />
         <Button x:Name="save"  Content="Save" Grid.Row="8" Grid.Column="1" Margin="0,0,10,0" Click="Save_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >

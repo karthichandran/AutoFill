@@ -81,10 +81,10 @@ namespace AutoFill
             AknowledgementNo.Text = challanDet["acknowledge"];
             FileNameLabel.Content = openFileDlg.SafeFileName;
             ChallanDate.Text = DateTime.ParseExact(challanDet["tenderDate"], "ddMMyy", null).ToString();
-            
-            var challanAmount = Convert.ToInt32(challanAmt);
 
-            if (challanAmount.ToString()!= challanDet["challanAmount"])
+            //var challanAmount = Convert.ToInt32(challanAmt);
+            var challanAmount = Convert.ToDecimal(challanDet["challanAmount"]);
+            if (challanAmount!= challanAmt)
                 MessageBox.Show("Challan Amount is not matching");
 
             if (result == true)
