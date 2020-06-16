@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AutoFill
 {
@@ -19,7 +21,7 @@ namespace AutoFill
             client = new HttpClient();
           // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
           client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-          //  client.BaseAddress = new Uri("https://localhost:44301/api/");
+          // client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -191,16 +193,33 @@ namespace AutoFill
             //}
         }
 
-        public void DownloadFile(string blobId,string fileName)
+        public async  void DownloadFile(CustomerPropertyFileDto customerPropertyFileDto)
         {
-            HttpResponseMessage response = new HttpResponseMessage();
-            response = client.GetAsync("files/blobId/" + blobId).Result;
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var ms = response.Content.ReadAsStreamAsync();
-                var fs = File.Create(fileName);                
+                var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+
+                downloadPath += @"\REproFiles\" + customerPropertyFileDto.FileName;
+                var ms = new MemoryStream(customerPropertyFileDto.FileBlob);
+                var fs = File.Create(downloadPath);
+                ms.Seek(0, SeekOrigin.Begin);
+                ms.CopyTo(fs);
+                MessageBox.Show("File is downloaded successfully. Please Refer the path : "+ downloadPath);
             }
+            catch (Exception ex) {
+                MessageBox.Show("File is not downloaded");
+            }
+
+            //    HttpResponseMessage response = new HttpResponseMessage();
+            //    response = client.GetAsync("files/blobId/" + blobId).Result;
+
+            //    if (response.IsSuccessStatusCode)
+            //    {
+            //        await using var ms = await response.Content.ReadAsStreamAsync();
+            //        await using var fs = File.Create(fileName);
+            //        ms.Seek(0, SeekOrigin.Begin);
+            //        ms.CopyTo(fs);
+            //    }
         }
 
         public bool DeleteRemittance(int remiitanceID)

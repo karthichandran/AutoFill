@@ -67,7 +67,10 @@ namespace AutoFill
             if (customerPropertyFileDto != null)
             {
                 FileNameLabel.Content = customerPropertyFileDto.FileName;
-              //  upload.IsEnabled = false;
+                //  upload.IsEnabled = false;
+            }
+            else {
+                download.Visibility = Visibility.Hidden;
             }
 
         }
@@ -103,7 +106,9 @@ namespace AutoFill
 
         private void Download_Click(object sender, RoutedEventArgs e)
         {
-           
+            if (customerPropertyFileDto != null)
+            svc.DownloadFile(customerPropertyFileDto);
+
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e)
