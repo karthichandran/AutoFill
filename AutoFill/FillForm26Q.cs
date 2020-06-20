@@ -215,6 +215,40 @@ namespace AutoFill
             var paymentTypeDDl = new SelectElement(paymentType);
             paymentTypeDDl.SelectByIndex(tab3.PaymentType);
 
+
+            var paymentDay = webDriver.FindElement(By.Name("pymntDay"));
+            paymentDay.Click();
+            var paymentDayDDl = new SelectElement(paymentDay);         
+            var paymentdaysOpt = paymentDayDDl.Options.Where(x => x.Text.Trim() == tab3.RevisedDateOfPayment.Day.ToString()).FirstOrDefault();
+            paymentDayDDl.SelectByText(paymentdaysOpt.Text);
+
+            var paymentMonth = webDriver.FindElement(By.Name("pymntMonth"));
+            var paymentMonthDDl = new SelectElement(paymentMonth);
+            var payMonthOpt = paymentMonthDDl.Options.Where(x => x.Text.Trim().ToLower() == tab3.RevisedDateOfPayment.Month.ToLower()).FirstOrDefault();
+            paymentMonthDDl.SelectByText(payMonthOpt.Text);
+
+            var paymentyear = webDriver.FindElement(By.Name("pymntYear"));
+            var paymentyearDDl = new SelectElement(paymentyear);
+            var paymentyearOpt = paymentyearDDl.Options.Where(x => x.Text.Trim() == tab3.RevisedDateOfPayment.Year.ToString()).FirstOrDefault();
+            paymentyearDDl.SelectByText(paymentyearOpt.Text);
+
+            var deductionDay = webDriver.FindElement(By.Name("deductionDay"));
+            deductionDay.Click();
+            var deductionDDl = new SelectElement(deductionDay);
+            var deductiondaysOpt = deductionDDl.Options.Where(x => x.Text.Trim() == tab3.DateOfDeduction.Day.ToString()).FirstOrDefault();
+            deductionDDl.SelectByText(deductiondaysOpt.Text);
+
+            var deductionMonth = webDriver.FindElement(By.Name("deductionMonth"));
+            var deductionMonthDDl = new SelectElement(deductionMonth);
+            var deductionMonthOpt = deductionMonthDDl.Options.Where(x => x.Text.Trim().ToLower() == tab3.DateOfDeduction.Month.ToLower()).FirstOrDefault();
+            deductionMonthDDl.SelectByText(deductionMonthOpt.Text);
+
+            var deductionyear = webDriver.FindElement(By.Name("deductionYear"));
+            var deductionyearDDl = new SelectElement(deductionyear);
+            var deductionyearOpt = deductionyearDDl.Options.Where(x => x.Text.Trim() == tab3.DateOfDeduction.Year.ToString()).FirstOrDefault();
+            deductionyearDDl.SelectByText(deductionyearOpt.Text);
+
+
             // AssignAmount(webDriver, "111111111");
             var ones = webDriver.FindElement(By.Name("Ones"));
             var onesDDl = new SelectElement(ones);
@@ -274,27 +308,27 @@ namespace AutoFill
                 bankDDl.SelectByText("ICICI Bank");
             }
 
-            var day = webDriver.FindElement(By.Name("pymntDay"));
-            day.Click();
-            var dayDDl = new SelectElement(day);
-            dayDDl.SelectByText(tab4.DateOfPayment.Day.ToString());
-            var month = webDriver.FindElement(By.Name("pymntMonth"));
-            var monthDDl = new SelectElement(month);
-            monthDDl.SelectByText(tab4.DateOfPayment.Month.ToString());
-            var year = webDriver.FindElement(By.Name("pymntYear"));
-            var yearDDl = new SelectElement(year);
-            yearDDl.SelectByText(tab4.DateOfPayment.Year.ToString());
+            //var day = webDriver.FindElement(By.Name("pymntDay"));
+            //day.Click();
+            //var dayDDl = new SelectElement(day);
+            //dayDDl.SelectByText(tab4.DateOfPayment.Day.ToString());
+            //var month = webDriver.FindElement(By.Name("pymntMonth"));
+            //var monthDDl = new SelectElement(month);
+            //monthDDl.SelectByText(tab4.DateOfPayment.Month.ToString());
+            //var year = webDriver.FindElement(By.Name("pymntYear"));
+            //var yearDDl = new SelectElement(year);
+            //yearDDl.SelectByText(tab4.DateOfPayment.Year.ToString());
 
-            var dayDeduction = webDriver.FindElement(By.Name("deductionDay"));
-            dayDeduction.Click();
-            var dayDeductionDDl = new SelectElement(dayDeduction);
-            dayDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Day.ToString());
-            var monthDeduction = webDriver.FindElement(By.Name("deductionMonth"));
-            var monthDeductionDDl = new SelectElement(monthDeduction);
-            monthDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Month.ToString());
-            var yearDeduction = webDriver.FindElement(By.Name("deductionYear"));
-            var yearDeductionDDl = new SelectElement(yearDeduction);
-            yearDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Year.ToString());
+            //var dayDeduction = webDriver.FindElement(By.Name("deductionDay"));
+            //dayDeduction.Click();
+            //var dayDeductionDDl = new SelectElement(dayDeduction);
+            //dayDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Day.ToString());
+            //var monthDeduction = webDriver.FindElement(By.Name("deductionMonth"));
+            //var monthDeductionDDl = new SelectElement(monthDeduction);
+            //monthDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Month.ToString());
+            //var yearDeduction = webDriver.FindElement(By.Name("deductionYear"));
+            //var yearDeductionDDl = new SelectElement(yearDeduction);
+            //yearDeductionDDl.SelectByText(tab4.DateOfTaxDeduction.Year.ToString());
 
         }
 
