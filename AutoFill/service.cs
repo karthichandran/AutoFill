@@ -15,7 +15,7 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-           //client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+          // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
            //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
             client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
@@ -334,7 +334,7 @@ namespace AutoFill
         public string F16CustName { get; set; }
         public DateTime? F16UpdateDate { get; set; }
         public decimal? F16CreditedAmount { get; set; }
-        public bool EmailSent { get; set; }
+        public bool? EmailSent { get; set; }
         public DateTime? EmailSentDate { get; set; }
 
         public virtual int UnitNo { get; set; }
