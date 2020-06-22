@@ -1,27 +1,23 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Win32;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace AutoFill
 {
-   public class service
+    public class service
     {
         private HttpClient client;
         public service()
         {
             client = new HttpClient();
-           client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
-          //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-         //  client.BaseAddress = new Uri("https://localhost:44301/api/");
+           //client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
+           //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
+            client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -335,6 +331,11 @@ namespace AutoFill
 
         public int? Form16BlobID { get; set; }
         public int? ChallanBlobID { get; set; }
+        public string F16CustName { get; set; }
+        public DateTime? F16UpdateDate { get; set; }
+        public decimal? F16CreditedAmount { get; set; }
+        public bool EmailSent { get; set; }
+        public DateTime? EmailSentDate { get; set; }
 
         public virtual int UnitNo { get; set; }
         public virtual string CustomerName { get; set; }
@@ -342,10 +343,8 @@ namespace AutoFill
         public virtual int LotNo { get; set; }
         public virtual DateTime DateOfBirth { get; set; }
         public virtual string CustomerPAN { get; set; }
+        
 
-        public string F16CustName { get; set; }
-        public DateTime? F16UpdateDate { get; set; }
-        public decimal? F16CreditedAmount { get; set; }
     }
 
     public class TdsRemittanceDto
