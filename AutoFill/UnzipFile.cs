@@ -136,10 +136,13 @@ namespace AutoFill
             }
             form16bDet.Add("name", name.Split(',')[0]);
 
-            var amountPattern = string.Format(@"[0-9]+\.[0-9]*");
+            //var amountPattern = string.Format(@"[0-9]+\.[0-9]*");
+            //Regex.Match(text, string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*")).Groups
+            var amountPattern = string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*");
             string amountMatch = Regex.Match(text, @amountPattern).Groups[0].Value;
             string[] amountArry = amountMatch.Split(' ');
-            string amount = amountArry[0];
+            string amount = amountArry[amountArry.Length-1];
+            amount = amount.Substring(3, amount.Length - 3);
             form16bDet.Add("amount", amount);
 
             return form16bDet;
