@@ -22,6 +22,7 @@ namespace AutoFill
     public partial class MainWindow : Window
     {
        private service svc;
+        private string tds;
         private IList<RemittanceStatus> remittanceStatusList;
         BackgroundWorker worker;
         public MainWindow()
@@ -47,22 +48,23 @@ namespace AutoFill
             tracesRemitanceStatusddl.SelectedValuePath = "RemittanceStatusID";
         }
 
-        private bool AutoFillForm296Q(int clientPaymentTransactionID) {
+        private bool AutoFillForm26Q(int clientPaymentTransactionID) {
             AutoFillDto autoFillDto = svc.GetAutoFillData(clientPaymentTransactionID);
             if (autoFillDto == null)
             {
                 MessageBox.Show("Data is not available to proceed Form26QB", "alert", MessageBoxButton.OK);
                 return false; ;
             }
-           
-            FillForm26Q.AutoFillForm26QB(autoFillDto);
+            var bankLogin = svc.GetBankLoginDetails();
+            FillForm26Q.AutoFillForm26QB(autoFillDto,tds, bankLogin);
             return true;
         }
 
         private void proceedForm(object sender, RoutedEventArgs e)
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
-            MethodThatWillCallComObject(AutoFillForm296Q,model.ClientPaymentTransactionID);         
+            tds = model.TdsAmount.ToString();
+            MethodThatWillCallComObject(AutoFillForm26Q,model.ClientPaymentTransactionID);         
         }
 
         private void TdsPaid(object sender, RoutedEventArgs e)

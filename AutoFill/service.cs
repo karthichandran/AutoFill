@@ -15,9 +15,10 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-          // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");
-           //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+           client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");  //Live
+           
+            //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
+            //client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -115,7 +116,21 @@ namespace AutoFill
             }
             return autoFillDto;
         }
-        
+
+        public BankAccountDetailsDto GetBankLoginDetails()
+        {
+
+            BankAccountDetailsDto bankDetail = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("AutoFill/UserDetail").Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                bankDetail = response.Content.ReadAsAsync<BankAccountDetailsDto>().Result;
+            }
+            return bankDetail;
+        }
+
         public bool SetToTdsPaid(int clientPaymentTransactionID)
         {
             HttpResponseMessage response = new HttpResponseMessage();
@@ -283,6 +298,12 @@ namespace AutoFill
             // if the file type is not recognized, return "application/octet-stream" so the browser will simply download it
             return mimeTypes.ContainsKey(fileExtension) ? mimeTypes[fileExtension] : "application/octet-stream";
         }
+    }
+
+    public class BankAccountDetailsDto {
+        public int AccountId { get; set; }
+        public string UserName { get; set; }
+        public string UserPassword { get; set; }
     }
 
     public class RemittanceStatus

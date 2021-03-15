@@ -7,8 +7,8 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using iTextSharp.text.pdf;
-using iTextSharp.text.io;
+//using iTextSharp.text.pdf;
+//using iTextSharp.text.io;
 using System.Text.RegularExpressions;
 using System.Windows;
 
@@ -52,9 +52,17 @@ namespace AutoFill
 
         public Dictionary<string, string> getChallanDetails(string filePath, string pan) {
             Dictionary<string, string> challanDet = new Dictionary<string, string>();
-            PDFParser pdfParser = new PDFParser();
-            PdfReader reader = new PdfReader(@filePath);
-            var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            //PDFParser pdfParser = new PDFParser();
+            //PdfReader reader = new PdfReader(@filePath);
+            //var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            string text;
+            using (var stream = File.OpenRead(filePath))
+            using (UglyToad.PdfPig.PdfDocument document = UglyToad.PdfPig.PdfDocument.Open(stream))
+            {
+                var page = document.GetPage(1);
+                text = string.Join(" ", page.GetWords());
+            }
+
             Console.WriteLine(text);
             var serialNo = GetWordAfterMatch(text, "Challan Serial No.");
             Console.WriteLine("Challan Serial NO :" + serialNo);
@@ -62,8 +70,8 @@ namespace AutoFill
             if (pan != paninDoc.ToString())
                 return challanDet;
             challanDet.Add("serialNo", serialNo.ToString());
-            var itns = GetWordAfterMatch(text, "Challan No./ITNS");
-            Console.WriteLine("ITNS :" + itns);
+            //var itns = GetWordAfterMatch(text, "Challan No./ITNS");
+            //Console.WriteLine("ITNS :" + itns);
             var tenderDate = GetWordAfterMatch(text, "Tender Date");
             challanDet.Add("tenderDate", tenderDate.ToString());
             var challamAmount = GetWordAfterMatch(text, "Rs. :");
@@ -112,37 +120,59 @@ namespace AutoFill
         {
             // pan = "AMSPA9519Q";
             Dictionary<string, string> form16bDet = new Dictionary<string, string>();
-            PDFParser pdfParser = new PDFParser();
-            PdfReader reader = new PdfReader(@filePath);
-            var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
-            Console.WriteLine(text);
-            var certNo = GetCertificateNoAfterMatch(text, pan);
+            //PDFParser pdfParser = new PDFParser();
+            //PdfReader reader = new PdfReader(@filePath);
+            //var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            //Console.WriteLine(text);
+            string text;
+            using (var stream = File.OpenRead(filePath))
+            using (UglyToad.PdfPig.PdfDocument document = UglyToad.PdfPig.PdfDocument.Open(stream))
+            {
+                var page = document.GetPage(1);
+                text = string.Join(" ", page.GetWords());
+            }
+            //  var certNo = GetCertificateNoAfterMatch(text, pan);
+            var certNo = GetWordAfterMatch(text, "Certificate No.:");
             form16bDet.Add("certNo", certNo.ToString());
 
-            var datePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+\b");
+            // var datePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+\b");            
+            //string match = Regex.Match(text, @datePattern).Groups[0].Value;
+            //string[] dateArry = match.Split(' ');
+            //string date = dateArry[dateArry.Length - 1];
+            //form16bDet.Add("paymentDate", date);
+            var datePattern = string.Format(@"\b\w*" + "Updated On:" + @"\s\w*(-)\w+(-)\w+\b");
             string match = Regex.Match(text, @datePattern).Groups[0].Value;
-            string[] dateArry = match.Split(' ');
+            string[] dateArry = match.Split(':');
             string date = dateArry[dateArry.Length - 1];
-            form16bDet.Add("paymentDate", date);
+            form16bDet.Add("paymentDate", date.Trim());
 
-            var namePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+[\s+\w+]*,");
-            string nameMatch = Regex.Match(text, @namePattern).Groups[0].Value;
-            string[] nameArray = nameMatch.Split(' ');
-            string name = "";
-            int inx = nameArray.Length - 5;
-            for (int i = 0; i < inx-1; i++)
-            {
-                name += nameArray[5 + i] + " ";
-            }
-            form16bDet.Add("name", name.Split(',')[0]);
+            //var namePattern = string.Format(@"\b\w*" + pan + @"\w*\s+\w+\s+\w+(-)\w+\s+\w+\s+\w+(-)\w+(-)\w+[\s+\w+]*,");           
+            //string nameMatch = Regex.Match(text, @namePattern).Groups[0].Value;
+            //string[] nameArray = nameMatch.Split(' ');
+            //string name = "";
+            //int inx = nameArray.Length - 5;
+            //for (int i = 0; i < inx-1; i++)
+            //{
+            //    name += nameArray[5 + i] + " ";
+            //}
+            //form16bDet.Add("name", name.Split(',')[0]);
 
-            //var amountPattern = string.Format(@"[0-9]+\.[0-9]*");
-            //Regex.Match(text, string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*")).Groups
+            var namePattern = string.Format(@"\b\w*" + "Full Name:" + @"(.*)");
+            string nameMatch = Regex.Match(text, @namePattern).Groups[1].Value;
+            string[] nameArray = nameMatch.Split(new string[]{ "Page" }, StringSplitOptions.None);            
+            form16bDet.Add("name", nameArray[0].Trim());
+
+            //var amountPattern = string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*");
+            //string amountMatch = Regex.Match(text, @amountPattern).Groups[0].Value;
+            //string[] amountArry = amountMatch.Split(' ');
+            //string amount = amountArry[amountArry.Length-1];
+            //amount = amount.Substring(3, amount.Length - 3);
+            //form16bDet.Add("amount", amount);
+
             var amountPattern = string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*");
             string amountMatch = Regex.Match(text, @amountPattern).Groups[0].Value;
             string[] amountArry = amountMatch.Split(' ');
-            string amount = amountArry[amountArry.Length-1];
-            amount = amount.Substring(3, amount.Length - 3);
+            string amount = amountArry[amountArry.Length - 1];
             form16bDet.Add("amount", amount);
 
             return form16bDet;

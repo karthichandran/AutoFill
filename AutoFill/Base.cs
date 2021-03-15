@@ -3,12 +3,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Support.UI;
+using WebDriverManager.DriverConfigs.Impl;
+
 namespace AutoFill
 {
    public class Base
@@ -35,35 +38,45 @@ namespace AutoFill
         
         protected static void WaitFor(IWebDriver webDriver, int inSeconds = 0)
         {
-            webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(inSeconds);
+            // webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(inSeconds);
+            Thread.Sleep(inSeconds * 1000);
         }
 
         protected static IWebDriver GetChromeDriver()
         {
-            //Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
+            try
+            {
+                //Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
 
-            //Process[] chromeDriverProcesses = Process.GetProcessesByName("chromedriver");
-            //foreach (var chromeDriverProcess in chromeDriverProcesses)
-            //{
-            //    chromeDriverProcess.Kill();
-            //}
+                //Process[] chromeDriverProcesses = Process.GetProcessesByName("chromedriver");
+                //foreach (var chromeDriverProcess in chromeDriverProcesses)
+                //{
+                //    chromeDriverProcess.Kill();
+                //}
 
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("--no-sandbox");
-            options.AddArgument("--disable-infobars");
-            options.AddArgument("--disable-dev-shm-usage");
-            options.AddArgument("--start-maximized");
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument("--no-sandbox");
+                options.AddArgument("--disable-infobars");
+                options.AddArgument("--disable-dev-shm-usage");
+                options.AddArgument("--start-maximized");
 
-            // options.BinaryLocation = AppDomain.CurrentDomain.BaseDirectory+"chromedriver.exe";
-            // options.AddArgument("--remote-debugging-port=9222");
+                // options.BinaryLocation = AppDomain.CurrentDomain.BaseDirectory+"chromedriver.exe";
+                // options.AddArgument("--remote-debugging-port=9222");
 
-            //var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
+                //var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
 
-            ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);
+               // new WebDriverManager.DriverManager().SetUpDriver(new ChromeConfig());
+               // ChromeDriver driver = new ChromeDriver( options);
 
-            return driver;
-            //var ieDriver = GetIEDriver();
-            //return ieDriver;
+                ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);
+
+                return driver;
+                //var ieDriver = GetIEDriver();
+                //return ieDriver;
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
         }
 
         protected static IWebDriver GetIEDriver() {

@@ -10,11 +10,15 @@ using OpenQA.Selenium.Support.UI;
 namespace AutoFill
 {
     public class FillForm26Q :Base
-    { 
-        public static void AutoFillForm26QB(AutoFillDto autoFillDto)
+    {
+       
+       static BankAccountDetailsDto _bankLogin;
+              
+        public static void AutoFillForm26QB(AutoFillDto autoFillDto,string tds, BankAccountDetailsDto bankLogin)
         {
             try
             {
+                _bankLogin = bankLogin;
                 var driver = GetChromeDriver();
                 // var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
                 //var driver = new ChromeDriver(options);
@@ -37,6 +41,9 @@ namespace AutoFill
 
                 WaitForReady(driver);
                 FillPaymentinfo(driver, autoFillDto.tab4);
+
+                WaitForReady(driver);
+                ProcessToBank(driver, tds);
             }
             catch (Exception e)
             {
@@ -308,6 +315,26 @@ namespace AutoFill
                 bankDDl.SelectByText("ICICI Bank");
             }
 
+            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+                                                     MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                     MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            var proceedBtn = webDriver.FindElement(By.XPath("//a[@href='#finish']"));
+            proceedBtn.Click();
+            WaitForReady(webDriver);
+            var confirmCheck = webDriver.FindElement(By.Id("consentCheck"));
+            confirmCheck.Click();
+            var confirmBtn = webDriver.FindElement(By.Id("Submit"));
+            confirmBtn.Click();
+            WaitForReady(webDriver);
+            WaitFor(webDriver, 3);
+            //  new WebDriverWait(webDriver, TimeSpan.FromSeconds(60)).Until(ExpectedConditions.ElementExists(By.XPath("//button[@data-dismiss='modal']")));
+            var closeBtn = webDriver.FindElement(By.XPath("//button[@data-dismiss='modal']"));
+            closeBtn.Click();
+            WaitForReady(webDriver);
+            WaitFor(webDriver, 3);
+            var submitToBankBtn = webDriver.FindElement(By.Id("Submit"));
+            submitToBankBtn.Click();
+            WaitForReady(webDriver);
             //var day = webDriver.FindElement(By.Name("pymntDay"));
             //day.Click();
             //var dayDDl = new SelectElement(day);
@@ -332,6 +359,46 @@ namespace AutoFill
 
         }
 
+        private static void ProcessToBank(IWebDriver webDriver,string tds) {
+            if (_bankLogin == null)
+            {
+               var result = MessageBox.Show("Bank login details not available", "Confirmation",
+                                                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                return;
+            }
+            WaitFor(webDriver,3);
+
+            var payBtn = webDriver.FindElement(By.Id("CIB_11X_PROCEED"));
+            payBtn.Click();
+            WaitForReady(webDriver);
+            WaitFor(webDriver,3);
+            var userIdTxt= webDriver.FindElement(By.Id("login-step1-userid"));
+            userIdTxt.SendKeys(_bankLogin.UserName);
+            var pwdTxt = webDriver.FindElement(By.Id("AuthenticationFG.ACCESS_CODE"));
+            pwdTxt.SendKeys(_bankLogin.UserPassword);
+            var proceedBtn = webDriver.FindElement(By.Id("VALIDATE_CREDENTIALS1"));
+            proceedBtn.Click();
+            WaitForReady(webDriver);
+            var incomeTaxTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.TAX_AMOUNT_STR"));
+            incomeTaxTxt.SendKeys(tds);
+            var continueBtn = webDriver.FindElements(By.Id("CONTINUE_PREVIEW"));
+            if (continueBtn.Count > 0)
+            {
+                continueBtn[0].Click();
+                WaitForReady(webDriver);
+            }
+
+            var submitBtn = webDriver.FindElements(By.Id("CONTINUE_SUMMARY"));
+            if (submitBtn.Count > 0)
+            {
+                submitBtn[0].Click();
+                WaitForReady(webDriver);
+            }
+
+            var downloadBtn = webDriver.FindElement(By.Id("SINGLEPDF"));
+            downloadBtn.Click();
+        }
         private static void AssignAmount(IWebDriver webDriver, string amount)
         {
             if (amount.Length == 1)
