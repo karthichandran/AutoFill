@@ -125,7 +125,7 @@ namespace AutoFill
 
             var viewRequestBtn = webDriver.FindElement(By.Id("getListByReqId"));
             viewRequestBtn.Click();
-           
+            WaitFor(webDriver, 2);
             var rows = webDriver.FindElements(By.ClassName("jqgrow"));
             if (rows.Count == 0)
                 return "";
@@ -134,7 +134,7 @@ namespace AutoFill
             if (statusCell.Text.Trim() != "Available")
                 return "";
             statusCell.Click();
-
+            WaitFor(webDriver, 1);
             var assessCell = rows[0].FindElements(By.TagName("td"))[2].Text.Trim();
             var ackNoCell = rows[0].FindElements(By.TagName("td"))[4].Text.Trim();
 
