@@ -18,7 +18,7 @@ namespace AutoFill
            client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");  //Live
            
             //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-            //client.BaseAddress = new Uri("https://localhost:44301/api/");
+           // client.BaseAddress = new Uri("https://localhost:44301/api/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -357,14 +357,16 @@ namespace AutoFill
         public decimal? F16CreditedAmount { get; set; }
         public bool? EmailSent { get; set; }
         public DateTime? EmailSentDate { get; set; }
-
+        public decimal? ChallanIncomeTaxAmount { get; set; }
+        public decimal? ChallanInterestAmount { get; set; }
+        public decimal? ChallanFeeAmount { get; set; }
+        public string ChallanCustomerName { get; set; }
         public virtual int UnitNo { get; set; }
         public virtual string CustomerName { get; set; }
         public virtual string Premises { get; set; }
         public virtual int LotNo { get; set; }
         public virtual DateTime DateOfBirth { get; set; }
         public virtual string CustomerPAN { get; set; }
-        
 
     }
 

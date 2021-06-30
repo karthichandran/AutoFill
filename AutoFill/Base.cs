@@ -66,9 +66,9 @@ namespace AutoFill
                 //var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
 
                // new WebDriverManager.DriverManager().SetUpDriver(new ChromeConfig());
-               // ChromeDriver driver = new ChromeDriver( options);
+                ChromeDriver driver = new ChromeDriver( options);
 
-                ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);
+               // ChromeDriver driver = new ChromeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), options);
 
                 return driver;
                 //var ieDriver = GetIEDriver();

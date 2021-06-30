@@ -82,7 +82,12 @@ namespace AutoFill
             FileNameLabel.Content = openFileDlg.SafeFileName;
             ChallanDate.Text = DateTime.ParseExact(challanDet["tenderDate"], "ddMMyy", null).ToString();
 
-            //var challanAmount = Convert.ToInt32(challanAmt);
+            remittance.ChallanIncomeTaxAmount = Convert.ToDecimal(challanDet["incomeTax"]);
+            remittance.ChallanInterestAmount = Convert.ToDecimal(challanDet["interest"]);
+            remittance.ChallanFeeAmount = Convert.ToDecimal(challanDet["fee"]);
+            remittance.ChallanCustomerName = challanDet["name"].ToString();
+
+          //var challanAmount = Convert.ToInt32(challanAmt);
             var challanAmount = Convert.ToDecimal(challanDet["challanAmount"]);
             if (challanAmount!= challanAmt)
                 MessageBox.Show("Challan Amount is not matching");
@@ -110,6 +115,7 @@ namespace AutoFill
                 remittance.ChallanDate = Convert.ToDateTime(ChallanDate.Text.Trim());
                 remittance.ChallanID= ChallanNo.Text.Trim();
                 remittance.RemittanceStatusID = 2;
+              
 
                 ChallanProgressbar.Visibility = Visibility.Visible;
                 int result = 0;

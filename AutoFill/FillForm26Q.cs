@@ -14,11 +14,13 @@ namespace AutoFill
        
        static BankAccountDetailsDto _bankLogin;
               
-        public static void AutoFillForm26QB(AutoFillDto autoFillDto,string tds, BankAccountDetailsDto bankLogin)
+        public static void AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin)
         {
             try
             {
                 _bankLogin = bankLogin;
+               // _bankLogin =new BankAccountDetailsDto{ UserName="reprosri",UserPassword="Repro&123"}; // Note : sri ram account
+
                 var driver = GetChromeDriver();
                 // var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
                 //var driver = new ChromeDriver(options);
@@ -43,7 +45,7 @@ namespace AutoFill
                 FillPaymentinfo(driver, autoFillDto.tab4);
 
                 WaitForReady(driver);
-                ProcessToBank(driver, tds);
+                ProcessToBank(driver, tds,interest,lateFee);
             }
             catch (Exception e)
             {
@@ -320,7 +322,14 @@ namespace AutoFill
                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
             var proceedBtn = webDriver.FindElement(By.XPath("//a[@href='#finish']"));
             proceedBtn.Click();
+            WaitFor(webDriver, 2);
+            var DatePopupBtn = webDriver.FindElements(By.XPath("//button[@data-dismiss='modal' and contains(.,'OK')]"));
+            if (DatePopupBtn!=null && DatePopupBtn.Count > 0)
+            {
+                DatePopupBtn[0].Click();
+            }
             WaitForReady(webDriver);
+            WaitFor(webDriver, 2);
             var confirmCheck = webDriver.FindElement(By.Id("consentCheck"));
             confirmCheck.Click();
             var confirmBtn = webDriver.FindElement(By.Id("Submit"));
@@ -359,7 +368,7 @@ namespace AutoFill
 
         }
 
-        private static void ProcessToBank(IWebDriver webDriver,string tds) {
+        private static void ProcessToBank(IWebDriver webDriver,string tds,string interest,string lateFee) {
             if (_bankLogin == null)
             {
                var result = MessageBox.Show("Bank login details not available", "Confirmation",
@@ -382,6 +391,16 @@ namespace AutoFill
             WaitForReady(webDriver);
             var incomeTaxTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.TAX_AMOUNT_STR"));
             incomeTaxTxt.SendKeys(tds);
+            WaitFor(webDriver, 1);
+            if (!string.IsNullOrEmpty(interest)) {
+                var interestTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.INTEREST_AMOUNT_STR"));
+                interestTxt.SendKeys(interest);
+            }
+            WaitFor(webDriver, 1);
+            if (!string.IsNullOrEmpty(lateFee)) {
+                var feeTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.OTHER_FEE_AMT_STR"));
+                feeTxt.SendKeys(lateFee);
+            }
             var continueBtn = webDriver.FindElements(By.Id("CONTINUE_PREVIEW"));
             if (continueBtn.Count > 0)
             {

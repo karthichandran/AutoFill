@@ -70,6 +70,9 @@ namespace AutoFill
             if (pan != paninDoc.ToString())
                 return challanDet;
             challanDet.Add("serialNo", serialNo.ToString());
+
+            var name = GetName(text,"Full Name :");
+            challanDet.Add("name", name.ToString());
             //var itns = GetWordAfterMatch(text, "Challan No./ITNS");
             //Console.WriteLine("ITNS :" + itns);
             var tenderDate = GetWordAfterMatch(text, "Tender Date");
@@ -77,12 +80,28 @@ namespace AutoFill
             var challamAmount = GetWordAfterMatch(text, "Rs. :");
             challanDet.Add("challanAmount", challamAmount.ToString());
             // var PAN = "BUZPP5880P"; //todo pass the pan number
-            // pan = "ADMPC7474M";
+            // pan = "BBFPK5517D";
             var tds = GetTDSConfirmationNo(text, pan);
             Console.WriteLine("tds conf NO :" + tds);
             challanDet.Add("acknowledge", tds.ToString());
             Console.ReadLine();
+
+            var incomeTax = GetWordAfterMatch(text, "Income Tax");
+            challanDet.Add("incomeTax", incomeTax.ToString());
+            var interest = GetWordAfterMatch(text, "Interest");
+            challanDet.Add("interest", interest.ToString());
+            var fee = GetWordAfterMatch(text, "Fee");
+            challanDet.Add("fee", fee.ToString());
             return challanDet;
+        }
+
+        private object GetName(string text, string word) {
+            var pattern = string.Format(@"\b\w*" + word + @"\w*\s+[^0-9]*");
+            string match = Regex.Match(text, @pattern).Groups[0].Value;          
+            string[] words = match.Split(':');
+            string wordAfter = words[words.Length - 1];
+
+            return wordAfter;
         }
 
         private object GetWordAfterMatch(string text, string word)
@@ -174,6 +193,8 @@ namespace AutoFill
             string[] amountArry = amountMatch.Split(' ');
             string amount = amountArry[amountArry.Length - 1];
             form16bDet.Add("amount", amount);
+
+           
 
             return form16bDet;
         }

@@ -23,6 +23,8 @@ namespace AutoFill
     {
        private service svc;
         private string tds;
+        private string tdsInterest;
+        private string lateFee;
         private IList<RemittanceStatus> remittanceStatusList;
         BackgroundWorker worker;
         public MainWindow()
@@ -56,7 +58,7 @@ namespace AutoFill
                 return false; ;
             }
             var bankLogin = svc.GetBankLoginDetails();
-            FillForm26Q.AutoFillForm26QB(autoFillDto,tds, bankLogin);
+            FillForm26Q.AutoFillForm26QB(autoFillDto,tds, tdsInterest, lateFee, bankLogin);
             return true;
         }
 
@@ -64,6 +66,8 @@ namespace AutoFill
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
             tds = model.TdsAmount.ToString();
+            tdsInterest = model.TdsInterest.ToString();
+            lateFee = model.LateFee.ToString();
             MethodThatWillCallComObject(AutoFillForm26Q,model.ClientPaymentTransactionID);         
         }
 
