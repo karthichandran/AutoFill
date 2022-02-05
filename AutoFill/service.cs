@@ -15,15 +15,17 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-           client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/");  //Live
-           
-            //client.BaseAddress = new Uri("http://megharaju-001-site1.atempurl.com/api/");
-           // client.BaseAddress = new Uri("https://localhost:44301/api/");
+           //   client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
+
+           client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
+            
+           ///  client.BaseAddress = new Uri("https://localhost:44301/api/");
+
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit,string lot)
+        public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit, string fromUnit, string toUnit,string lot)
         {
             IList<TdsRemittanceDto> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
@@ -35,6 +37,13 @@ namespace AutoFill
                 query["PropertyPremises"] = premises;
             if (!string.IsNullOrEmpty(unit))
                 query["unitNo"] = unit;
+            if (!string.IsNullOrEmpty(lot))
+                query["lotNo"] = lot;
+
+            if (!string.IsNullOrEmpty(fromUnit))
+                query["fromUnitNo"] = fromUnit;
+            if (!string.IsNullOrEmpty(toUnit))
+                query["toUnitNo"] = toUnit;
             if (!string.IsNullOrEmpty(lot))
                 query["lotNo"] = lot;
             //if (!string.IsNullOrEmpty(remittanceStatusID))
@@ -77,7 +86,7 @@ namespace AutoFill
             return remitance;
         }
 
-        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string lot, string remittanceStatusID)
+        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
         {
             IList<TdsRemittanceDto> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
@@ -89,6 +98,10 @@ namespace AutoFill
                 query["PropertyPremises"] = premises;
             if (!string.IsNullOrEmpty(unit))
                 query["unitNo"] = unit;
+            if (!string.IsNullOrEmpty(fromUnit))
+                query["fromUnitNo"] = fromUnit;
+            if (!string.IsNullOrEmpty(toUnit))
+                query["toUnitNo"] = toUnit;
             if (!string.IsNullOrEmpty(lot))
                 query["lotNo"] = lot;
             if (!string.IsNullOrEmpty(remittanceStatusID))
@@ -99,6 +112,10 @@ namespace AutoFill
             if (response.IsSuccessStatusCode)
             {
                 remitance = response.Content.ReadAsAsync<IList<TdsRemittanceDto>>().Result;
+            }
+            foreach(var entity in remitance){
+
+                entity.OnlyTDS = !entity.OnlyTDS;
             }
             return remitance;
         }
@@ -127,6 +144,20 @@ namespace AutoFill
             if (response.IsSuccessStatusCode)
             {
                 bankDetail = response.Content.ReadAsAsync<BankAccountDetailsDto>().Result;
+            }
+            return bankDetail;
+        }
+
+        public List<BankAccountDetailsDto> GetBankLoginList()
+        {
+
+            List<BankAccountDetailsDto> bankDetail = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("AutoFill/AccountList").Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                bankDetail = response.Content.ReadAsAsync<List<BankAccountDetailsDto>>().Result;
             }
             return bankDetail;
         }
@@ -304,6 +335,23 @@ namespace AutoFill
         public int AccountId { get; set; }
         public string UserName { get; set; }
         public string UserPassword { get; set; }
+
+        public string LetterA { get; set; }
+        public string LetterB { get; set; }
+        public string LetterC { get; set; }
+        public string LetterD { get; set; }
+        public string LetterE { get; set; }
+        public string LetterF { get; set; }
+        public string LetterG { get; set; }
+        public string LetterH { get; set; }
+        public string LetterI { get; set; }
+        public string LetterJ { get; set; }
+        public string LetterK { get; set; }
+        public string LetterL { get; set; }
+        public string LetterM { get; set; }
+        public string LetterN { get; set; }
+        public string LetterO { get; set; }
+        public string LetterP { get; set; }
     }
 
     public class RemittanceStatus
@@ -411,6 +459,8 @@ namespace AutoFill
         public DateTime? F16BDateOfReq { get; set; }
         public string F16BRequestNo { get; set; }
         public virtual decimal ChallanAmount { get; set; }
+
+        public bool OnlyTDS { get; set; }
     }
 
     public class AutoFillDto

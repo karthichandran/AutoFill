@@ -27,7 +27,7 @@ namespace AutoFill
             return "";
         }
 
-        public static void AutoFillDownload(TdsRemittanceDto tdsRemittanceDto,string requestNo,DateTime dateOfBirth )
+        public static string AutoFillDownload(TdsRemittanceDto tdsRemittanceDto,string requestNo,DateTime dateOfBirth )
         {
             try
             {
@@ -40,7 +40,9 @@ namespace AutoFill
                 {
 
                     UnzipFile unzipFile = new UnzipFile();
-                    unzipFile.extractFile(fileName, dateOfBirth.ToString("ddMMyyyy"));
+                    var filePath=unzipFile.extractFile(fileName, dateOfBirth.ToString("ddMMyyyy"));
+                    return filePath;
+
                 }else
                     MessageBox.Show("Form is not yet generated");
             }
@@ -48,6 +50,7 @@ namespace AutoFill
             {
                 MessageBox.Show("Download form Failed");
             }
+            return null;
         }
 
         private static void FillLogin(IWebDriver webDriver, TdsRemittanceDto tdsRemittanceDto) {
