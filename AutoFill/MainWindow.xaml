@@ -14,6 +14,7 @@
         <Grid.RowDefinitions>
             <!--<RowDefinition Height="70"/>-->
             <RowDefinition Height="80" />
+            <RowDefinition Height="50" />
             <RowDefinition Height="9*"/>
 
         </Grid.RowDefinitions>
@@ -22,7 +23,11 @@
             <Label  x:Name="Header" Height="40" Content="Repro Services" VerticalAlignment="Top" Margin="20" FontSize="20" Foreground="#1757bf" FontWeight="Bold" />
 
         </StackPanel>
-        <TabControl Grid.Row="1" >
+        <StackPanel Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Right" >
+            <Label  x:Name="account" Height="35" Margin="0 10 0 0" Content="User Account :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
+            <ComboBox x:Name="accountddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="accountddl_SelectionChanged"/>
+        </StackPanel>
+        <TabControl Grid.Row="2" >
             <TabItem>
                 <TabItem.Header>
                     <TextBlock Text="TDS Remitance" Foreground="#20bf0b"  Margin="10" FontWeight="Bold" FontSize="15" />
@@ -42,6 +47,7 @@
                         <RowDefinition Height="50"/>
                         <RowDefinition Height="50"/>                       
                         <RowDefinition/>
+                        <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
                     <!--<StackPanel Grid.Row="0" Grid.ColumnSpan="4" Orientation="Horizontal" >
                         <Image x:Name="image1" Margin="10,10,0,10" VerticalAlignment="Top" Source="/assets/repro_logo.png" Width="60" Height="60" HorizontalAlignment="Left" />
@@ -68,13 +74,36 @@
                             </Style>
                         </TextBox.Resources>
                     </TextBox>
-                    <TextBox  x:Name="unitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
-                        <TextBox.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="3"/>
-                            </Style>
-                        </TextBox.Resources>
-                    </TextBox>
+                    <Grid  Grid.Row="1" Grid.Column="2"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  Width="10" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"   x:Name="unitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2" TextChanged="unitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <Label Grid.Column="1"  Background="#b8bab8" Width="3" Height="30" Margin="0 0 8 10"/>
+                        <TextBox Grid.Column="2"  x:Name="fromUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,5,10 " TextChanged="fromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <TextBox Grid.Column="3"  x:Name="toUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,10,10 " TextChanged="fromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </Grid>
                     <TextBox  x:Name="lotNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
                         <TextBox.Resources>
                             <Style TargetType="{x:Type Border}">
@@ -310,7 +339,22 @@
                             </DataGridTemplateColumn>-->
                         </DataGrid.Columns>
                     </DataGrid>
-
+                    <Grid Grid.Row="5" VerticalAlignment="Top" Grid.ColumnSpan="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="1" Content="Total Records  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800"></Label>
+                        <Label x:Name="TotalRecordsLbl" Grid.Column="2" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                        <Label Grid.Column="3"></Label>
+                        <Label Grid.Column="4" Content=" Total TDS  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
+                        <Label x:Name="TotalTDSLbl" Grid.Column="5" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                    </Grid>
                     <!--<Popup Name="popup1" PlacementTarget="{Binding ElementName=FilterGrid}" AllowsTransparency = "True" PopupAnimation = "Slide"
     Placement="Center" Height="100" Width="300">
             <Grid>
@@ -367,13 +411,43 @@
                             </Style>
                         </TextBox.Resources>
                     </TextBox>
-                    <TextBox  x:Name="tracesUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                    <!--<TextBox  x:Name="tracesUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
                         <TextBox.Resources>
                             <Style TargetType="{x:Type Border}">
                                 <Setter Property="CornerRadius" Value="3"/>
                             </Style>
                         </TextBox.Resources>
-                    </TextBox>
+                    </TextBox>-->
+                    <Grid  Grid.Row="1" Grid.Column="2"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  Width="10" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"   x:Name="tracesUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2" TextChanged="tracesUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <Label Grid.Column="1"  Background="#b8bab8" Width="3" Height="30" Margin="0 0 8 10"/>
+                        <TextBox Grid.Column="2"  x:Name="tracesFromUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,5,10 " TextChanged="tracesFromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <TextBox Grid.Column="3"  x:Name="tracesToUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,10,10 " TextChanged="tracesFromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </Grid>
                     <TextBox  x:Name="tracesLotNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
                         <TextBox.Resources>
                             <Style TargetType="{x:Type Border}">
@@ -590,7 +664,7 @@
                                 
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="RequestForm16B" Content="Request Form16B" Background="#f52f7b" Foreground="White" FontSize="14" FontWeight="Bold">
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="RequestForm16B" Content="Request Form16B" Background="#f52f7b" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
                                             <Button.Resources>
                                                 <Style TargetType="{x:Type Border}">
                                                     <Setter Property="CornerRadius" Value="3"/>
@@ -604,7 +678,7 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="DownLoadForm" Content="Download Form" Background="#08bd2c" Foreground="White" FontSize="14" FontWeight="Bold">
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="DownLoadForm" Content="Download Form" Background="#08bd2c" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
                                             <Button.Resources>
                                                 <Style TargetType="{x:Type Border}">
                                                     <Setter Property="CornerRadius" Value="3"/>
@@ -618,7 +692,7 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="UpdateRemittance" Content="Update" Background="#2d86fa" Foreground="White" FontSize="14" FontWeight="Bold">
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="UpdateRemittance" Content="Update" Background="#2d86fa" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
                                             <Button.Resources>
                                                 <Style TargetType="{x:Type Border}">
                                                     <Setter Property="CornerRadius" Value="3"/>
@@ -647,7 +721,7 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="SendMail" Content=" Mail " Background="#f2ad22" Foreground="White" FontSize="14" FontWeight="Bold">
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="SendMail" Content=" Mail " Background="#f2ad22" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
                                             <Button.Resources>
                                                 <Style TargetType="{x:Type Border}">
                                                     <Setter Property="CornerRadius" Value="3"/>

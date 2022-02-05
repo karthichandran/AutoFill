@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -105,6 +106,7 @@ namespace AutoFill
               //  var bloblId = svc.UploadFile(formData, remittance.RemittanceID.ToString(), 7);
             }
         }
+
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
             if (Validate()) {
@@ -128,7 +130,7 @@ namespace AutoFill
                         if (isFileBrowsed)
                             SaveFile(result);
                         
-                        MessageBox.Show("Challan details are saved successfully");
+                        MessageBox.Show("Challan details are saved successfully");                       
                     }
                     else
                         MessageBox.Show("Challan details are not saved ");
@@ -139,6 +141,7 @@ namespace AutoFill
                     LoadRemitance(); 
                 }
                     ChallanProgressbar.Visibility = Visibility.Hidden;
+                this.DialogResult = false;//auto close
             }
         }
 

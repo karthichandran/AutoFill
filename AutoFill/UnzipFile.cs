@@ -19,7 +19,7 @@ namespace AutoFill
         public UnzipFile() {
         }
 
-        public void extractFile(string fileName, string pwd) {
+        public string extractFile(string fileName, string pwd) {
             // using Microsoft.Win32;
 
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
@@ -48,6 +48,7 @@ namespace AutoFill
             MessageBoxResult result = MessageBox.Show(String.Format("Form 16B with file name {0} downloaded successfully", fileName), "Confirmation",
                                                      MessageBoxButton.OK, MessageBoxImage.Information,
                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            return @downloadPath+'\\'+ fileName + ".pdf";
         }
 
         public Dictionary<string, string> getChallanDetails(string filePath, string pan) {

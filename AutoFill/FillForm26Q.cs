@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,14 +13,15 @@ namespace AutoFill
     public class FillForm26Q :Base
     {
        
-       static BankAccountDetailsDto _bankLogin;
-              
-        public static void AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin)
+       static BankAccountDetailsDto _bankLogin;       
+        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin)
         {
             try
             {
-                _bankLogin = bankLogin;
+                _bankLogin = bankLogin;// rgan31
                // _bankLogin =new BankAccountDetailsDto{ UserName="reprosri",UserPassword="Repro&123"}; // Note : sri ram account
+               // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.RGANESH", UserPassword = "Rajalara@123" }; 
+               // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.VIJAYALA", UserPassword = "Sriram@123" }; 
 
                 var driver = GetChromeDriver();
                 // var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
@@ -46,11 +48,13 @@ namespace AutoFill
 
                 WaitForReady(driver);
                 ProcessToBank(driver, tds,interest,lateFee);
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 MessageBox.Show("Processing Form26QB Failed");
+                return false;
                // throw;
             }
         }
@@ -257,6 +261,10 @@ namespace AutoFill
             var deductionyearOpt = deductionyearDDl.Options.Where(x => x.Text.Trim() == tab3.DateOfDeduction.Year.ToString()).FirstOrDefault();
             deductionyearDDl.SelectByText(deductionyearOpt.Text);
 
+            var higherRate = webDriver.FindElement(By.Id("tds_higher_rate"));
+            var higherRateDDl = new SelectElement(higherRate);
+            higherRateDDl.SelectByText("No");
+
 
             // AssignAmount(webDriver, "111111111");
             var ones = webDriver.FindElement(By.Name("Ones"));
@@ -401,12 +409,17 @@ namespace AutoFill
                 var feeTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.OTHER_FEE_AMT_STR"));
                 feeTxt.SendKeys(lateFee);
             }
+
+            var gridAuth = webDriver.FindElements(By.Id("TranRequestManagerFG.AUTH_MODES"));
+            gridAuth[1].Click();
+
             var continueBtn = webDriver.FindElements(By.Id("CONTINUE_PREVIEW"));
             if (continueBtn.Count > 0)
             {
                 continueBtn[0].Click();
                 WaitForReady(webDriver);
             }
+            ProcessGridData(webDriver);
 
             var submitBtn = webDriver.FindElements(By.Id("CONTINUE_SUMMARY"));
             if (submitBtn.Count > 0)
@@ -417,6 +430,7 @@ namespace AutoFill
 
             var downloadBtn = webDriver.FindElement(By.Id("SINGLEPDF"));
             downloadBtn.Click();
+            WaitFor(webDriver, 3);
         }
         private static void AssignAmount(IWebDriver webDriver, string amount)
         {
@@ -524,6 +538,111 @@ namespace AutoFill
                 var croresDDl = new SelectElement(crores);
                 croresDDl.SelectByText(amount.Substring(0, lngth));
             }
+
+        }
+
+        private static void ProcessGridData(IWebDriver webDriver) {
+            Dictionary<string, string>  grid = new Dictionary<string, string>();
+            grid.Add("A", _bankLogin.LetterA.ToString());
+            grid.Add("B", _bankLogin.LetterB.ToString());
+            grid.Add("C", _bankLogin.LetterC.ToString());
+            grid.Add("D", _bankLogin.LetterD.ToString());
+            grid.Add("E", _bankLogin.LetterE.ToString());
+            grid.Add("F", _bankLogin.LetterF.ToString());
+            grid.Add("G", _bankLogin.LetterG.ToString());
+            grid.Add("H", _bankLogin.LetterH.ToString());
+            grid.Add("I", _bankLogin.LetterI.ToString());
+            grid.Add("J", _bankLogin.LetterJ.ToString());
+            grid.Add("K", _bankLogin.LetterK.ToString());
+            grid.Add("L", _bankLogin.LetterL.ToString());
+            grid.Add("M", _bankLogin.LetterM.ToString());
+            grid.Add("N", _bankLogin.LetterN.ToString());
+            grid.Add("O", _bankLogin.LetterO.ToString());
+            grid.Add("P", _bankLogin.LetterP.ToString());
+
+            ////579091011.RGANESH
+            //grid.Add("A", "20");
+            //grid.Add("B", "43");
+            //grid.Add("C", "12");
+            //grid.Add("D", "32");
+            //grid.Add("E", "64");
+            //grid.Add("F", "76");
+            //grid.Add("G", "04");
+            //grid.Add("H", "42");
+            //grid.Add("I", "47");
+            //grid.Add("J", "67");
+            //grid.Add("K", "71");
+            //grid.Add("L", "03");
+            //grid.Add("M", "41");
+            //grid.Add("N", "71");
+            //grid.Add("O", "93");
+            //grid.Add("P", "11");
+
+            ////579091011.VIJAYALAKSHMI
+            //grid.Add("A", "38");
+            //grid.Add("B", "94");
+            //grid.Add("C", "84");
+            //grid.Add("D", "08");
+            //grid.Add("E", "51");
+            //grid.Add("F", "47");
+            //grid.Add("G", "23");
+            //grid.Add("H", "81");
+            //grid.Add("I", "21");
+            //grid.Add("J", "81");
+            //grid.Add("K", "16");
+            //grid.Add("L", "91");
+            //grid.Add("M", "63");
+            //grid.Add("N", "13");
+            //grid.Add("O", "11");
+            //grid.Add("P", "55");
+
+            ////Repro Sri
+            //grid.Add("A", "90");
+            //grid.Add("B", "82");
+            //grid.Add("C", "45");
+            //grid.Add("D", "71");
+            //grid.Add("E", "42");
+            //grid.Add("F", "57");
+            //grid.Add("G", "54");
+            //grid.Add("H", "01");
+            //grid.Add("I", "83");
+            //grid.Add("J", "10");
+            //grid.Add("K", "60");
+            //grid.Add("L", "82");
+            //grid.Add("M", "21");
+            //grid.Add("N", "92");
+            //grid.Add("O", "53");
+            //grid.Add("P", "34");
+
+            //RGAN31
+            //grid.Add("A", "17");
+            //grid.Add("B", "45");
+            //grid.Add("C", "32");
+            //grid.Add("D", "41");
+            //grid.Add("E", "64");
+            //grid.Add("F", "28");
+            //grid.Add("G", "50");
+            //grid.Add("H", "86");
+            //grid.Add("I", "32");
+            //grid.Add("J", "93");
+            //grid.Add("K", "06");
+            //grid.Add("L", "93");
+            //grid.Add("M", "40");
+            //grid.Add("N", "51");
+            //grid.Add("O", "47");
+            //grid.Add("P", "29");
+
+            var gridElms = webDriver.FindElements(By.ClassName("gridauth_input_cell_style"));
+            var firstLetter = gridElms[0].Text;
+            var secondLetter = gridElms[1].Text;
+            var thirdLetter = gridElms[2].Text;
+
+            var firstInput = webDriver.FindElement(By.Id("TranRequestManagerFG.GRID_CARD_AUTH_VALUE_1__"));
+            firstInput.SendKeys(grid[firstLetter]);
+            var secondInput = webDriver.FindElement(By.Id("TranRequestManagerFG.GRID_CARD_AUTH_VALUE_2__"));
+            secondInput.SendKeys(grid[secondLetter]);
+            var thirstInput = webDriver.FindElement(By.Id("TranRequestManagerFG.GRID_CARD_AUTH_VALUE_3__"));
+            thirstInput.SendKeys(grid[thirdLetter]);
 
         }
     }
