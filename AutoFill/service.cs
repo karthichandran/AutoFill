@@ -17,9 +17,9 @@ namespace AutoFill
             client = new HttpClient();
            //   client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
 
-           client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
+          // client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
             
-           ///  client.BaseAddress = new Uri("https://localhost:44301/api/");
+             client.BaseAddress = new Uri("https://localhost:44301/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -420,6 +420,7 @@ namespace AutoFill
 
     public class TdsRemittanceDto
     {
+        public bool IsSelected { get; set; }
         public int ClientPaymentTransactionID { get; set; }
         public int ClientPaymentID { get; set; }
         public Guid OwnershipID { get; set; }
@@ -543,7 +544,7 @@ namespace AutoFill
         public Decimal BasicTax { get; set; }
         public Decimal Interest { get; set; }
         public Decimal LateFee { get; set; }
-
+        public int StampDuty { get; set; }
 
         public Guid OwnershipId { get; set; }
         public Guid InstallmentId { get; set; }

@@ -45,9 +45,9 @@ namespace AutoFill
                     archive.ExtractToDirectory(@downloadPath);
                 }
             }
-            MessageBoxResult result = MessageBox.Show(String.Format("Form 16B with file name {0} downloaded successfully", fileName), "Confirmation",
-                                                     MessageBoxButton.OK, MessageBoxImage.Information,
-                                                     MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            //MessageBoxResult result = MessageBox.Show(String.Format("Form 16B with file name {0} downloaded successfully", fileName), "Confirmation",
+            //                                         MessageBoxButton.OK, MessageBoxImage.Information,
+            //                                         MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
             return @downloadPath+'\\'+ fileName + ".pdf";
         }
 

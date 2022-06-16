@@ -14,7 +14,7 @@ namespace AutoFill
     {
        
        static BankAccountDetailsDto _bankLogin;       
-        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin)
+        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin,string transID)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace AutoFill
                 FillPaymentinfo(driver, autoFillDto.tab4);
 
                 WaitForReady(driver);
-                ProcessToBank(driver, tds,interest,lateFee);
+                ProcessToBank(driver, tds,interest,lateFee, transID);
                 return true;
             }
             catch (Exception e)
@@ -224,6 +224,9 @@ namespace AutoFill
             var totalValue = webDriver.FindElement(By.Name("totalPropertyValue"));
             totalValue.SendKeys(tab3.TotalAmount.ToString());
 
+            var stampDutyValue = webDriver.FindElement(By.Id("stampdutyvalue"));
+            stampDutyValue.SendKeys(tab3.StampDuty.ToString());
+
             var paymentType = webDriver.FindElement(By.Name("paymentType"));
             var paymentTypeDDl = new SelectElement(paymentType);
             paymentTypeDDl.SelectByIndex(tab3.PaymentType);
@@ -262,10 +265,12 @@ namespace AutoFill
             deductionyearDDl.SelectByText(deductionyearOpt.Text);
 
             var higherRate = webDriver.FindElement(By.Id("tds_higher_rate"));
-            var higherRateDDl = new SelectElement(higherRate);
-            higherRateDDl.SelectByText("No");
+            if (higherRate.Displayed)
+            {
+                var higherRateDDl = new SelectElement(higherRate);
+                higherRateDDl.SelectByText("No");
 
-
+            }
             // AssignAmount(webDriver, "111111111");
             var ones = webDriver.FindElement(By.Name("Ones"));
             var onesDDl = new SelectElement(ones);
@@ -324,10 +329,21 @@ namespace AutoFill
                 var bankDDl = new SelectElement(bank);
                 bankDDl.SelectByText("ICICI Bank");
             }
-
-            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+            var captcha = ReadCaptcha(webDriver, "Captcha");
+            if (captcha == "")
+            {
+                MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
                                                      MessageBoxButton.OK, MessageBoxImage.Asterisk,
                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                var captchaInput = webDriver.FindElement(By.Name("captchaText"));
+                captchaInput.SendKeys(captcha);
+            }
+
+
+           
             var proceedBtn = webDriver.FindElement(By.XPath("//a[@href='#finish']"));
             proceedBtn.Click();
             WaitFor(webDriver, 2);
@@ -376,7 +392,7 @@ namespace AutoFill
 
         }
 
-        private static void ProcessToBank(IWebDriver webDriver,string tds,string interest,string lateFee) {
+        private static void ProcessToBank(IWebDriver webDriver,string tds,string interest,string lateFee,string transId) {
             if (_bankLogin == null)
             {
                var result = MessageBox.Show("Bank login details not available", "Confirmation",
@@ -408,6 +424,13 @@ namespace AutoFill
             if (!string.IsNullOrEmpty(lateFee)) {
                 var feeTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.OTHER_FEE_AMT_STR"));
                 feeTxt.SendKeys(lateFee);
+            }
+
+            WaitFor(webDriver, 1);
+            if (!string.IsNullOrEmpty(transId))
+            {
+                var feeTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.PMT_RMKS"));
+                feeTxt.SendKeys(transId);
             }
 
             var gridAuth = webDriver.FindElements(By.Id("TranRequestManagerFG.AUTH_MODES"));

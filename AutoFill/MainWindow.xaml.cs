@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -43,6 +44,8 @@ namespace AutoFill
         private string fromUnit;
         private string toUnit;
         private string lot;
+
+        ObservableCollection<TdsRemittanceDto> tdsRemitanceList { get; set; }
 
         BackgroundWorker worker;
         public MainWindow()
@@ -94,7 +97,7 @@ namespace AutoFill
             }
            
          
-           var status= FillForm26Q.AutoFillForm26QB(autoFillDto,tds, tdsInterest, lateFee, bankLogin);
+           var status= FillForm26Q.AutoFillForm26QB(autoFillDto,tds, tdsInterest, lateFee, bankLogin, clientPaymentTransactionID.ToString());
             return status;
         }
 
@@ -330,7 +333,10 @@ namespace AutoFill
             var remittanceList = await Task.Run(() => {
                 return svc.GetTdsPaidList(custName, premise, unit,fromUnit,toUnit, lot, remiittanceStatusID);
             });
-            TracesGrid.ItemsSource = remittanceList;
+            tdsRemitanceList =new ObservableCollection<TdsRemittanceDto>(remittanceList);
+           
+            //TracesGrid.ItemsSource = remittanceList;
+            TracesGrid.ItemsSource = tdsRemitanceList;
             TracesProgressbar.Visibility = Visibility.Hidden;
         }
 
@@ -344,10 +350,12 @@ namespace AutoFill
             //var toUnit = tracesToUnitNoTxt.Text;
 
             var remittanceList = svc.GetTdsPaidList(custName, premise, unit, fromUnit, toUnit, lot, remittanceStatusID);
+            tdsRemitanceList = new ObservableCollection<TdsRemittanceDto>(remittanceList);
             // Reload filter
             this.Dispatcher.Invoke((Action)(() =>
             {
-                TracesGrid.ItemsSource = remittanceList;
+                //TracesGrid.ItemsSource = remittanceList;
+                TracesGrid.ItemsSource = tdsRemitanceList;
 
             }));
            
@@ -380,9 +388,12 @@ namespace AutoFill
             if (reqNo != "")
             {
                 var challanAmount = model.TdsAmount + model.TdsInterest + model.LateFee;
-                Traces traces = new Traces(model,reqNo);
+                Traces traces = new Traces(model, reqNo);
                 traces.Owner = this;
                 traces.ShowDialog();
+            }
+            else {
+                MessageBox.Show("Request form16B Failed");
             }
 
             TracesSearchFilter();
@@ -403,7 +414,12 @@ namespace AutoFill
                     if (!string.IsNullOrEmpty(filePath))
                     {
                         AutoUploadService autoUploadService = new AutoUploadService();
-                        autoUploadService.UploadForm16b(filePath, tdsremittanceModel);
+                        var status=autoUploadService.UploadForm16b(filePath, tdsremittanceModel);
+                        if(!status)
+                            MessageBox.Show("upload form Failed");
+                    }
+                    else {
+                        MessageBox.Show("Download form Failed");
                     }
                     Tracessearch();
                 });
@@ -548,6 +564,101 @@ namespace AutoFill
                 tracesUnitNoTxt.Text = "";
             }
 
+        }
+
+        private void SelectAll_Checked(object sender, RoutedEventArgs e)
+        {
+            var isChecked = (sender as CheckBox).IsChecked;
+            var isSelect=Convert.ToBoolean(isChecked);
+            foreach (var item in tdsRemitanceList)
+            {
+               if(item.OnlyTDS)
+                item.IsSelected = isSelect;
+            }
+            TracesGrid.ItemsSource = tdsRemitanceList;
+            TracesGrid.Items.Refresh();
+        }
+
+        private async void BulkRequest_Click(object sender, RoutedEventArgs e)
+        {
+            if (tdsRemitanceList == null)
+                return;
+
+            var selectedItems = tdsRemitanceList.ToList().FindAll(x => x.IsSelected == true);
+            if (selectedItems.Count == 0)
+                return;
+            foreach (var item in selectedItems)
+            {
+              await proceedRequestAll(item);
+            }
+
+            Tracessearch();
+            MessageBox.Show("Batch process completed.");
+        }
+
+        private async void BulkDownload_Click(object sender, RoutedEventArgs e)
+        {
+            if (tdsRemitanceList == null)
+                return;
+
+            var selectedItems = tdsRemitanceList.ToList().FindAll(x => x.IsSelected == true);
+            if (selectedItems.Count == 0)
+                return;
+            foreach (var item in selectedItems)
+            {
+              await  proceedDownloadAll(item);
+            }
+
+            Tracessearch();
+            MessageBox.Show("Batch process completed.");
+        }
+
+        private async Task<bool>  proceedRequestAll(TdsRemittanceDto model) {
+            var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
+            var reqNo = "";
+            TracesFilter();
+            TracesProgressbar.Visibility = Visibility.Visible;
+            if (tdsremittanceModel != null)
+            {
+                await Task.Run(() => {
+                    reqNo = FillTraces.AutoFillForm16B(tdsremittanceModel);
+                    if (reqNo != "")
+                    {
+                        AutoUploadService autoUploadService = new AutoUploadService();
+                        autoUploadService.UpdateForm16BRequestNo(model.ClientPaymentTransactionID, reqNo);
+                    }
+                });
+            }
+            TracesProgressbar.Visibility = Visibility.Hidden;
+           
+
+            return true;
+        }
+
+        private async Task<bool> proceedDownloadAll(TdsRemittanceDto model)
+        {
+            var tdsremittanceModel = svc.GetTdsRemitanceById(model.ClientPaymentTransactionID);
+            var remittanceModel = svc.GetRemitanceByTransID(model.ClientPaymentTransactionID);
+            TracesFilter();
+            if (tdsremittanceModel != null)
+            {
+                TracesProgressbar.Visibility = Visibility.Visible;
+                await Task.Run(() => {
+                    var filePath = FillTraces.AutoFillDownload(tdsremittanceModel, remittanceModel.F16BRequestNo, remittanceModel.DateOfBirth);
+
+                    // Upload downloaded form
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        AutoUploadService autoUploadService = new AutoUploadService();
+                        autoUploadService.UploadForm16b(filePath, tdsremittanceModel);
+                    }
+                   
+                });
+
+                TracesProgressbar.Visibility = Visibility.Hidden;
+                
+            }
+            return true;
         }
     }
 }

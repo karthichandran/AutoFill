@@ -458,27 +458,66 @@
                     <Label  x:Name="remittanceStatusLbl" Height="30" Content="Remittance Status" Grid.Row="2" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
 
                     <ComboBox Name="tracesRemitanceStatusddl" Grid.Row="3" Grid.Column="0" Height="35" Margin="10,0,10,0" />
-                    <Button x:Name="TracesSearch"  Content="Search" Grid.Row="3" Grid.Column="1" Margin="0,0,10,0" Click="TracesSearch_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
-                        <Button.Foreground>
-                            <SolidColorBrush Color="White"/>
-                        </Button.Foreground>
-                        <Button.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="3"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                    <Button x:Name="TracesReset" Content="Reset" Grid.Row="3" Grid.Column="2" Margin="0,-2,10,0" Click="TracesReset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
-                        <Button.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="3"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <Grid Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="1" Margin="10,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="TracesSearch"  Content="Search"  Grid.Column="0" Margin="0,0,10,0" Click="TracesSearch_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                            <Button.Foreground>
+                                <SolidColorBrush Color="White"/>
+                            </Button.Foreground>
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="TracesReset" Content="Reset"  Grid.Column="1" Margin="0,-2,10,0" Click="TracesReset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="BulkRequest" Content="Request All"  Grid.Column="2" Margin="0,-2,10,0" Click="BulkRequest_Click" FontSize="17" FontWeight="Bold" Background="#f52f7b" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="BulkDownload" Content="Download All"  Grid.Column="3" Margin="0,-2,10,0" Click="BulkDownload_Click" FontSize="17" FontWeight="Bold" Background="#08bd2c" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                  
                     <ProgressBar Grid.Row="4" Grid.ColumnSpan="4"  x:Name = "TracesProgressbar" Margin = "20,0,0,0" Height = "30"  Width="300"
                   IsIndeterminate = "True" />
                     <DataGrid  Grid.Row="5" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
+                            <DataGridTemplateColumn >
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox x:Name="SelectAll" Content="All" Checked="SelectAll_Checked" Unchecked="SelectAll_Checked"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate >
+                                    <DataTemplate>
+                                        <CheckBox x:Name="checkBx"  IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 5 0 0 " IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <CheckBox.LayoutTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </CheckBox.LayoutTransform>
+
+                                        </CheckBox>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">

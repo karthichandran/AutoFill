@@ -18,11 +18,12 @@ namespace AutoFill
                 driver.Navigate().GoToUrl("https://www.tdscpc.gov.in/app/login.xhtml");
                 WaitForReady(driver);
                 FillLogin(driver, tdsRemittanceDto);
-               var reqNo = RquestForm16B(driver, tdsRemittanceDto);
+                var reqNo = RquestForm16B(driver, tdsRemittanceDto);
+                   driver.Quit();
                 return reqNo;
             }
             catch (Exception e) {
-                MessageBox.Show("Request form16B Failed");
+               // MessageBox.Show("Request form16B Failed");
             }
             return "";
         }
@@ -41,14 +42,16 @@ namespace AutoFill
 
                     UnzipFile unzipFile = new UnzipFile();
                     var filePath=unzipFile.extractFile(fileName, dateOfBirth.ToString("ddMMyyyy"));
+                    driver.Quit();
                     return filePath;
 
-                }else
-                    MessageBox.Show("Form is not yet generated");
+                }
+                //else
+                //    MessageBox.Show("Form is not yet generated");
             }
             catch (Exception e)
             {
-                MessageBox.Show("Download form Failed");
+               // MessageBox.Show("Download form Failed");
             }
             return null;
         }
@@ -67,9 +70,19 @@ namespace AutoFill
              // pwd.SendKeys("Rana&123");
             pwd.SendKeys(tdsRemittanceDto.TracesPassword);
 
-            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
-                                                      MessageBoxButton.OK, MessageBoxImage.Asterisk,
-                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly );
+           var captcha=  ReadCaptcha(webDriver, "captchaImg");
+            if (captcha == "") {
+                MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+                                                         MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                         MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                var captchaInput = webDriver.FindElement(By.Id("captcha"));
+                captchaInput.SendKeys(captcha);
+            }
+
+           
 
             WaitForReady(webDriver);
             webDriver.FindElement(By.Id("clickLogin")).Click();
