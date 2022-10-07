@@ -150,6 +150,68 @@ namespace AutoFill
            
         }
 
+        private void BulkPayment_Click(object sender, RoutedEventArgs e)
+        {
+            
+            var remittanceList = (List<TdsRemittanceDto>)remitanceGrid.ItemsSource;
+            remittanceList = remittanceList.Where(x => x.IsSelected == true).ToList();
+            if (remittanceList.Count() == 0)
+                return;
+
+            if (selectedAccount == 0)
+            {
+                MessageBox.Show("Please select User Account", "alert", MessageBoxButton.OK);
+                return;
+            }
+
+            progressbar1.Visibility = Visibility.Visible;
+            string failedPayments = "";
+            Task.Factory.StartNew(() =>
+            {
+                foreach (var item in remittanceList)
+                {
+                    var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
+                    var id = item.ClientPaymentTransactionID;
+                    AutoFillDto autoFillDto = svc.GetAutoFillData(id);
+                    if (autoFillDto == null)
+                    {
+                        continue;
+                    }
+
+                    var status = FillForm26Q.AutoFillForm26QB_NoMsg(autoFillDto, item.TdsAmount.ToString(), item.TdsInterest.ToString(), item.LateFee.ToString(), bankLogin, id.ToString());
+
+                    if (!status)
+                    {
+                        if (failedPayments == "")
+                        {
+                            failedPayments = item.UnitNo + " - " + item.CustomerName;
+                        }
+                        else
+                        {
+                            failedPayments = failedPayments + " , " + item.UnitNo + " - " + item.CustomerName;
+                        }
+                        continue;
+                    }
+
+                    autoUploadChallan_NoMsg(id, challanAmount);                   
+                }
+
+
+            }).ContinueWith(t =>
+            {
+                progressbar1.Visibility = Visibility.Hidden;
+                RemittanceSearchFilter();
+                if (failedPayments != "")
+                {
+                    MessageBox.Show("Following units are failed : " + failedPayments);
+                }
+                MessageBox.Show("Batch process completed.");
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            
+
+        }
+
         private void TdsPaid(object sender, RoutedEventArgs e)
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
@@ -220,9 +282,63 @@ namespace AutoFill
             }
             else
                 MessageBox.Show("Challan details are not saved ");
+        }
 
+        private async void autoUploadChallan_NoMsg(int transID, decimal challanAmt)
+        {
+            var remittance = svc.GetRemitanceByTransID(transID);
+
+            var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+            //  string[] filePaths = Directory.GetFiles(downloadPath, remittance.CustomerPAN + "_*.pdf").OrderByDescending(f=>f.LastWriteTime);
+
+            var directory = new DirectoryInfo(downloadPath);
+            var myFile = directory.GetFiles(remittance.CustomerPAN + "_*.pdf").OrderByDescending(f => f.LastWriteTime).ToList();
+
+            if (myFile.Count == 0)
+                return;
+
+            var filename = myFile[0].FullName;
+
+            var unzipFile = new UnzipFile();
+            var challanDet = unzipFile.getChallanDetails(filename, remittance.CustomerPAN);
+            if (challanDet.Count == 0)
+                return;
+
+            if (remittance.ClientPaymentTransactionID == 0)
+                remittance.ClientPaymentTransactionID = transID;
+
+            remittance.ChallanAmount = challanAmt;
+            remittance.ChallanID = challanDet["serialNo"];
+            remittance.ChallanAckNo = challanDet["acknowledge"];
+            remittance.ChallanDate = DateTime.ParseExact(challanDet["tenderDate"], "ddMMyy", null);
+            remittance.RemittanceStatusID = 2;
+
+            remittance.ChallanIncomeTaxAmount = Convert.ToDecimal(challanDet["incomeTax"]);
+            remittance.ChallanInterestAmount = Convert.ToDecimal(challanDet["interest"]);
+            remittance.ChallanFeeAmount = Convert.ToDecimal(challanDet["fee"]);
+            remittance.ChallanCustomerName = challanDet["name"].ToString();
+
+            var challanAmount = Convert.ToDecimal(challanDet["challanAmount"]);
+            if (challanAmount != challanAmt)
+                MessageBox.Show("Challan Amount is not matching");
+
+            var formData = new MultipartFormDataContent();
+            var fileContent = new ByteArrayContent(File.ReadAllBytes(filename));
+            var fileType = System.IO.Path.GetExtension(filename);
+            var contentType = svc.GetContentType(fileType);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            var name = System.IO.Path.GetFileName(filename);
+            formData.Add(fileContent, "file", name);
+
+            int result = svc.SaveRemittance(remittance);
+
+            if (result != 0)
+            {
+                var bloblId = svc.UploadFile(formData, result.ToString(), 7);
+            }
 
         }
+
 
         //private void MethodThatWillCallComObject(TdsRemittanceDto model)
         //{
@@ -398,6 +514,7 @@ namespace AutoFill
 
             TracesSearchFilter();
         }
+      
         private async void DownLoadForm(object sender, RoutedEventArgs e)
         {
             var model = (sender as Button).DataContext as TdsRemittanceDto;
@@ -579,6 +696,19 @@ namespace AutoFill
             TracesGrid.Items.Refresh();
         }
 
+        private void RemittanceAll_Checked(object sender, RoutedEventArgs e)
+        {
+            var isChecked = (sender as CheckBox).IsChecked;
+            var isSelect = Convert.ToBoolean(isChecked);
+            var remittanceList = (IList<TdsRemittanceDto>)remitanceGrid.ItemsSource;
+            foreach (var item in remittanceList)
+            {
+                    item.IsSelected = isSelect;
+            }
+            remitanceGrid.ItemsSource = remittanceList;
+            remitanceGrid.Items.Refresh();
+        }
+
         private async void BulkRequest_Click(object sender, RoutedEventArgs e)
         {
             if (tdsRemitanceList == null)
@@ -660,5 +790,7 @@ namespace AutoFill
             }
             return true;
         }
+
+        
     }
 }

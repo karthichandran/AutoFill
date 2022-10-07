@@ -112,8 +112,14 @@
                         </TextBox.Resources>
                     </TextBox>
                     <!--<ComboBox Name="remitanceStatusddl" Grid.Row="2" Grid.Column="0" Height="35" Margin="10,0,10,10" />-->
-
-                    <Button x:Name="Search"  Content="Search" Grid.Row="2" Grid.Column="1" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                  
+                        <Grid  Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="2" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition  />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="Search" Grid.Column="0"  Content="Search" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
                         <Button.Foreground>
                             <SolidColorBrush Color="White"/>
                         </Button.Foreground>
@@ -123,17 +129,41 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <Button x:Name="Reset" Content="Reset" Grid.Row="2" Grid.Column="2" Margin="0,-2,10,0" Click="Reset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                        <Button x:Name="Reset" Content="Reset"  Grid.Column="1"  Margin="0,-2,10,0" Click="Reset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
                         <Button.Resources>
                             <Style TargetType="{x:Type Border}">
                                 <Setter Property="CornerRadius" Value="3"/>
                             </Style>
                         </Button.Resources>
                     </Button>
+                        <Button x:Name="BulkPayment" Content="Payment All"  Grid.Column="2"  Margin="0,-2,10,0" Click="BulkPayment_Click" FontSize="17" FontWeight="Bold" Background="#f52f7b" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    </Grid>
                     <ProgressBar Grid.Row="3" Grid.ColumnSpan="4"  x:Name = "progressbar1" Margin = "20,0,0,0" Height = "30"  Width="300"
                   IsIndeterminate = "True" />
                     <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
                         <DataGrid.Columns>
+                            <DataGridTemplateColumn >
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox x:Name="All" Content="All" Checked="RemittanceAll_Checked" Unchecked="RemittanceAll_Checked"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate >
+                                    <DataTemplate>
+                                        <CheckBox x:Name="checkBx"  IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 5 0 0 ">
+                                            <CheckBox.LayoutTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </CheckBox.LayoutTransform>
+
+                                        </CheckBox>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
                                 <DataGridColumn.HeaderStyle>
                                     <Style TargetType="DataGridColumnHeader">

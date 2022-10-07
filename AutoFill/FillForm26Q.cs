@@ -32,7 +32,6 @@ namespace AutoFill
                 // var proceedBtn = driver.FindElement(By.XPath("//a[@href='javascript:sendRequest(\'PropertyTaxForm\');']"));
                 driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
 
-              //  MessageBoxResult result = MessageBox.Show("PLease fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
 
                 WaitForReady(driver);
                 FillTaxPayerInfo(driver, autoFillDto.tab1);
@@ -47,7 +46,9 @@ namespace AutoFill
                 FillPaymentinfo(driver, autoFillDto.tab4);
 
                 WaitForReady(driver);
-                ProcessToBank(driver, tds,interest,lateFee, transID);
+                ProcessToBank(driver, tds, interest, lateFee, transID);
+
+                driver.Quit();
                 return true;
             }
             catch (Exception e)
@@ -56,6 +57,43 @@ namespace AutoFill
                 MessageBox.Show("Processing Form26QB Failed");
                 return false;
                // throw;
+            }
+        }
+
+        //Note : both autofillform26q should be same functionality
+        public static bool AutoFillForm26QB_NoMsg(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID)
+        {
+            try
+            {
+                _bankLogin = bankLogin;
+                                      
+
+                var driver = GetChromeDriver();
+                driver.Navigate().GoToUrl("https://onlineservices.tin.egov-nsdl.com/etaxnew/tdsnontds.jsp");
+                WaitForReady(driver);
+                driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
+
+                WaitForReady(driver);
+                FillTaxPayerInfo(driver, autoFillDto.tab1);
+
+                WaitForReady(driver);
+                FillAddress(driver, autoFillDto.tab2);
+
+                WaitForReady(driver);
+                FillPropertyinfo(driver, autoFillDto.tab3);
+
+                WaitForReady(driver);
+                FillPaymentinfo(driver, autoFillDto.tab4);
+
+                WaitForReady(driver);
+                ProcessToBank(driver, tds, interest, lateFee, transID);
+                driver.Quit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+                // throw;
             }
         }
 
