@@ -16,10 +16,12 @@ namespace AutoFill
 {
     public class UnzipFile
     {
-        public UnzipFile() {
+        public UnzipFile()
+        {
         }
 
-        public string extractFile(string fileName, string pwd) {
+        public string extractFile(string fileName, string pwd)
+        {
             // using Microsoft.Win32;
 
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
@@ -48,10 +50,11 @@ namespace AutoFill
             //MessageBoxResult result = MessageBox.Show(String.Format("Form 16B with file name {0} downloaded successfully", fileName), "Confirmation",
             //                                         MessageBoxButton.OK, MessageBoxImage.Information,
             //                                         MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-            return @downloadPath+'\\'+ fileName + ".pdf";
+            return @downloadPath + '\\' + fileName + ".pdf";
         }
 
-        public Dictionary<string, string> getChallanDetails(string filePath, string pan) {
+        public Dictionary<string, string> getChallanDetails(string filePath, string pan)
+        {
             Dictionary<string, string> challanDet = new Dictionary<string, string>();
             //PDFParser pdfParser = new PDFParser();
             //PdfReader reader = new PdfReader(@filePath);
@@ -72,7 +75,7 @@ namespace AutoFill
                 return challanDet;
             challanDet.Add("serialNo", serialNo.ToString());
 
-            var name = GetName(text,"Full Name :");
+            var name = GetName(text, "Full Name :");
             challanDet.Add("name", name.ToString());
             //var itns = GetWordAfterMatch(text, "Challan No./ITNS");
             //Console.WriteLine("ITNS :" + itns);
@@ -96,9 +99,66 @@ namespace AutoFill
             return challanDet;
         }
 
-        private object GetName(string text, string word) {
+        public Dictionary<string, string> getChallanDetails_Hdfc(string filePath, string sellerPan)
+        {
+            Dictionary<string, string> challanDet = new Dictionary<string, string>();
+            //PDFParser pdfParser = new PDFParser();
+            //PdfReader reader = new PdfReader(@filePath);
+            //var text = new PDFParser().ExtractTextFromPDFBytes(reader.GetPageContent(1)).Trim().ToString();
+            string text;
+            using (var stream = File.OpenRead(filePath))
+            using (UglyToad.PdfPig.PdfDocument document = UglyToad.PdfPig.PdfDocument.Open(stream))
+            {
+                var page = document.GetPage(1);
+                text = string.Join(" ", page.GetWords());
+            }
+
+            Console.WriteLine(text);
+            var serialNo = GetWordAfterMatch(text, "ChallanSerialNo");
+            Console.WriteLine("Challan Serial NO :" + serialNo);
+            //var paninDoc = GetWordAfterMatch(text, "PAN:");
+            //if (pan != paninDoc.ToString())
+            //    return challanDet;
+            challanDet.Add("serialNo", serialNo.ToString());
+
+            var name = GetWordAfterMatch(text, "oftheAssessee");
+            challanDet.Add("name", name.ToString());
+            //var itns = GetWordAfterMatch(text, "Challan No./ITNS");
+            //Console.WriteLine("ITNS :" + itns);
+            var tenderDate = GetDate(text, "ofReceipt");
+            challanDet.Add("tenderDate", tenderDate.ToString());
+            var challamAmount = GetWordAfterMatch(text, "TOTAL");
+            challanDet.Add("challanAmount", challamAmount.ToString());
+            // var PAN = "BUZPP5880P"; //todo pass the pan number
+            // pan = "BBFPK5517D";
+            var tds = GetWordAfterMatch(text, sellerPan);
+            Console.WriteLine("tds conf NO :" + tds);
+            challanDet.Add("acknowledge", tds.ToString());
+            Console.ReadLine();
+
+            var incomeTax = GetWordAfterMatch(text, "BasicTax");
+            challanDet.Add("incomeTax", incomeTax.ToString());
+            var interest = GetWordAfterMatch(text, "Interest");
+            challanDet.Add("interest", interest.ToString());
+            var fee = GetWordAfterMatch(text, "Fee");
+            challanDet.Add("fee", fee.ToString());
+            return challanDet;
+        }
+
+        private object GetDate(string text, string word)
+        {
+            var pattern = string.Format(@"\b\w*" + word + @"\s\w*(/)\w+(/)\w+\b");
+            string match = Regex.Match(text, @pattern).Groups[0].Value;
+            string[] words = match.Split(' ');
+            string wordAfter = words[words.Length - 1];
+
+            return wordAfter;
+        }
+
+        private object GetName(string text, string word)
+        {
             var pattern = string.Format(@"\b\w*" + word + @"\w*\s+[^0-9]*");
-            string match = Regex.Match(text, @pattern).Groups[0].Value;          
+            string match = Regex.Match(text, @pattern).Groups[0].Value;
             string[] words = match.Split(':');
             string wordAfter = words[words.Length - 1];
 
@@ -136,7 +196,7 @@ namespace AutoFill
             return wordAfter;
         }
 
-        public Dictionary<string, string> GetForm16bDetailsFromPDF(string filePath,string pan)
+        public Dictionary<string, string> GetForm16bDetailsFromPDF(string filePath, string pan)
         {
             // pan = "AMSPA9519Q";
             Dictionary<string, string> form16bDet = new Dictionary<string, string>();
@@ -179,7 +239,7 @@ namespace AutoFill
 
             var namePattern = string.Format(@"\b\w*" + "Full Name:" + @"(.*)");
             string nameMatch = Regex.Match(text, @namePattern).Groups[1].Value;
-            string[] nameArray = nameMatch.Split(new string[]{ "Page" }, StringSplitOptions.None);            
+            string[] nameArray = nameMatch.Split(new string[] { "Page" }, StringSplitOptions.None);
             form16bDet.Add("name", nameArray[0].Trim());
 
             //var amountPattern = string.Format(@"\b\w*sum of Rs.\w*\s+\w*.\w*");
@@ -195,11 +255,11 @@ namespace AutoFill
             string amount = amountArry[amountArry.Length - 1];
             form16bDet.Add("amount", amount);
 
-           
+
 
             return form16bDet;
         }
 
-       
+
     }
 }

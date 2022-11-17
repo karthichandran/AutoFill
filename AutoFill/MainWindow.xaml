@@ -26,6 +26,8 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Right" >
             <Label  x:Name="account" Height="35" Margin="0 10 0 0" Content="User Account :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
             <ComboBox x:Name="accountddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="accountddl_SelectionChanged"/>
+            <Label  x:Name="bank" Height="35" Margin="0 10 0 0" Content="Bank :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
+            <ComboBox x:Name="bankddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="bankddl_SelectionChanged"/>
         </StackPanel>
         <TabControl Grid.Row="2" >
             <TabItem>
@@ -56,9 +58,9 @@
                     </StackPanel>-->
 
                     <Label  x:Name="customerName" Height="30" Content="Customer Name" Grid.Row="0" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-                    <Label x:Name="premises" Height="30" Content="Premises" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-                    <Label x:Name="unitNo" Height="30" Content="Unit No" Grid.Row="0" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
-                    <Label  x:Name="lotNo" Height="30" Content="Lot No" Grid.Row="0" Grid.Column="3" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="premises" Height="30" Content="Premises *" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="unitNo" Height="30" Content="Unit No *" Grid.Row="0" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label  x:Name="lotNo" Height="30" Content="Lot No *" Grid.Row="0" Grid.Column="3" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
 
                     <TextBox  x:Name="customerNameTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="1" Grid.Column="0" Margin="10,0,10,10"  BorderBrush="#FFDFE1E2">
                         <TextBox.Resources>
