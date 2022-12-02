@@ -17,7 +17,7 @@ namespace AutoFill
             client = new HttpClient();
              client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
             
-           // client.BaseAddress = new Uri("https://localhost:44301/api/");
+           //client.BaseAddress = new Uri("https://localhost:44301/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -301,7 +301,30 @@ namespace AutoFill
             }
             return false;
         }
+        public MessageDto GetOTP(int lane)
+        {
+            MessageDto msg = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("Message/" + lane).Result;
 
+            if (response.IsSuccessStatusCode)
+            {
+                msg = response.Content.ReadAsAsync<MessageDto>().Result;
+            }
+            return msg;
+        }
+
+        public bool DeleteOTP(int lane)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.DeleteAsync("Message/" + lane).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+        }
 
         public string GetContentType(string fileExtension)
         {
@@ -347,7 +370,8 @@ namespace AutoFill
         public int AccountId { get; set; }
         public string UserName { get; set; }
         public string UserPassword { get; set; }
-
+        public string BankName { get; set; }
+        public int? LaneNo { get; set; }
         public string LetterA { get; set; }
         public string LetterB { get; set; }
         public string LetterC { get; set; }
@@ -593,6 +617,17 @@ namespace AutoFill
         public int Tens { get; set; }
         public int Ones { get; set; }
     }
+    public class MessageDto
+    {
+        public int MessageID { get; set; }
 
-    
+        public string Subject { get; set; }
+        public string Body { get; set; }
+        public bool? Verified { get; set; }
+        public int? Lane { get; set; }
+        public string Message { get; set; }
+        public int? Error_code { get; set; }
+        public int Opt { get; set; }
+    }
+
 }

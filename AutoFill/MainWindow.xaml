@@ -26,8 +26,18 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Right" >
             <Label  x:Name="account" Height="35" Margin="0 10 0 0" Content="User Account :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
             <ComboBox x:Name="accountddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="accountddl_SelectionChanged"/>
-            <Label  x:Name="bank" Height="35" Margin="0 10 0 0" Content="Bank :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
-            <ComboBox x:Name="bankddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="bankddl_SelectionChanged"/>
+            <Button x:Name="ResetOtp" Grid.Column="0"  Content="Reset OTP" Margin="0,0,20,0" Padding="10 0 10 0" Click="ResetOtp_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                <Button.Foreground>
+                    <SolidColorBrush Color="White"/>
+                </Button.Foreground>
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="3"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <!--<Label  x:Name="bank" Height="35" Margin="0 10 0 0" Content="Bank :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
+            <ComboBox x:Name="bankddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="bankddl_SelectionChanged"/>-->
         </StackPanel>
         <TabControl Grid.Row="2" >
             <TabItem>

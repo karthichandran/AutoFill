@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -43,9 +45,10 @@ namespace AutoFill
                 FillPropertyinfo(driver, autoFillDto.tab3);
 
                 WaitForReady(driver);
-                FillPaymentinfo(driver, autoFillDto.tab4, bank);
+                FillPaymentinfo(driver, autoFillDto.tab4, _bankLogin.BankName);
 
-                if (bank == "HDFC")
+                // if (bank == "HDFC")
+                if (_bankLogin.BankName == "HDFC")
                     ProcessToBank_hdfc(driver, tds, interest, lateFee, transID);
                 else
                 {
@@ -88,9 +91,10 @@ namespace AutoFill
                 FillPropertyinfo(driver, autoFillDto.tab3);
 
                 WaitForReady(driver);
-                FillPaymentinfo(driver, autoFillDto.tab4, bank);
+                FillPaymentinfo(driver, autoFillDto.tab4, _bankLogin.BankName);
 
-                if (bank == "HDFC")
+                // if (bank == "HDFC")
+                if (_bankLogin.BankName == "HDFC")
                     ProcessToBank_hdfc(driver, tds, interest, lateFee, transID);
                 else
                 {
@@ -381,21 +385,21 @@ namespace AutoFill
                     bankDDl.SelectByText("ICICI Bank");
             }
             var captcha = ReadCaptcha(webDriver, "Captcha");
-            //if (captcha == "")
-            //{
-            //    MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
-            //                                         MessageBoxButton.OK, MessageBoxImage.Asterisk,
-            //                                         MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-            //}
-            //else
-            //{
-            //    var captchaInput = webDriver.FindElement(By.Name("captchaText"));
-            //    captchaInput.SendKeys(captcha);
-            //}
+            if (captcha == "")
+            {
+                MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+                                                     MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                     MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                var captchaInput = webDriver.FindElement(By.Name("captchaText"));
+                captchaInput.SendKeys(captcha);
+            }
 
-            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
-                                                    MessageBoxButton.OK, MessageBoxImage.Asterisk,
-                                                    MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            //MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+            //                                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+            //                                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
 
 
 
@@ -584,12 +588,45 @@ namespace AutoFill
             WaitFor(webDriver, 2);
             var confirmBtn = webDriver.FindElements(By.XPath("//img[@src='gif/confirm.gif']"))[0];
             confirmBtn.Click();
-           // WaitForReady(webDriver);
+            // WaitForReady(webDriver);
 
-            //To fill OTP
-            MessageBoxResult done = MessageBox.Show("Please fill the OPT and press OK button.", "Confirmation",
-                                                    MessageBoxButton.OK, MessageBoxImage.Asterisk,
-                                                    MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            WaitFor(webDriver, 3);
+            service svc = new service();
+            string otp = "";
+            for (var i = 0; i < 120; i++)
+            {
+                var msg = svc.GetOTP(_bankLogin.LaneNo.Value);
+                if (msg == null) {
+                    Thread.Sleep(2000);
+                    continue;
+                }
+
+                if (msg.Opt > 0)
+                {
+                    var txtOpt = msg.Opt.ToString();
+                   
+                    otp = txtOpt.Length==6? txtOpt :  Regex.Match(msg.Body, "(\\d{6})").Groups[0].Value; ;
+                    break;
+                }
+                
+            }
+
+            //Ask OTP if not received
+            if (otp == "")
+            {
+                MessageBoxResult done = MessageBox.Show("Please fill the OTP and press OK button.", "Confirmation",
+                                                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                //fill opt
+                var optElm = webDriver.FindElement(By.Name("fldOtpToken"));               
+                optElm.SendKeys(otp);
+            }
+
+            //Delete otp
+            svc.DeleteOTP(_bankLogin.LaneNo.Value);
 
             ///gif/submit.gif
             ///
@@ -815,5 +852,7 @@ namespace AutoFill
             thirstInput.SendKeys(grid[thirdLetter]);
 
         }
+
+       
     }
 }
