@@ -107,9 +107,14 @@ namespace AutoFill
                 MessageBox.Show("Please select User Account", "alert", MessageBoxButton.OK);
                 return false; 
             }
-           
-         
-           var status= FillForm26Q.AutoFillForm26QB(autoFillDto,tds, tdsInterest, lateFee, bankLogin, clientPaymentTransactionID.ToString(),selectedBank);
+
+
+            var status = false;
+            if (bankLogin.BankName == "HDFC")
+                status = FillForm26Q.AutoFillForm26QB(autoFillDto, tds, tdsInterest, lateFee, bankLogin, clientPaymentTransactionID.ToString());
+            else
+                status = FillForm26QB_ICICI.AutoFillForm26QB(autoFillDto, tds, tdsInterest, lateFee, bankLogin, clientPaymentTransactionID.ToString());
+
             return status;
         }
 
@@ -135,7 +140,8 @@ namespace AutoFill
                     return;
 
                 // auto upload
-                autoUploadChallan(model.ClientPaymentTransactionID, challanAmount, selectedBank,model.SellerPAN);
+                // autoUploadChallan(model.ClientPaymentTransactionID, challanAmount, selectedBank,model.SellerPAN);
+                UploadDebitAdvice(model.ClientPaymentTransactionID);
 
                 // Reload filter
                 this.Dispatcher.Invoke((Action)(() =>
@@ -183,6 +189,8 @@ namespace AutoFill
             {
                 foreach (var item in remittanceList)
                 {
+                    Dispatcher.BeginInvoke(new Action(() => lbl_runingUnit.Content = item.CustomerName + "  -  " + item.UnitNo + "  -  " + item.TdsAmount), System.Windows.Threading.DispatcherPriority.Send);
+
                     var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
                     var id = item.ClientPaymentTransactionID;
                     AutoFillDto autoFillDto = svc.GetAutoFillData(id);
@@ -191,7 +199,11 @@ namespace AutoFill
                         continue;
                     }
 
-                    var status = FillForm26Q.AutoFillForm26QB_NoMsg(autoFillDto, item.TdsAmount.ToString(), item.TdsInterest.ToString(), item.LateFee.ToString(), bankLogin, id.ToString(), selectedBank);
+                    var status = false;
+                    if (bankLogin.BankName == "HDFC")
+                        status = FillForm26Q.AutoFillForm26QB_NoMsg(autoFillDto, item.TdsAmount.ToString(), item.TdsInterest.ToString(), item.LateFee.ToString(), bankLogin, id.ToString());
+                    else
+                        status = FillForm26QB_ICICI.AutoFillForm26QB_NoMsg(autoFillDto, item.TdsAmount.ToString(), item.TdsInterest.ToString(), item.LateFee.ToString(), bankLogin, id.ToString());
 
                     if (!status)
                     {
@@ -206,7 +218,8 @@ namespace AutoFill
                         continue;
                     }
 
-                    autoUploadChallan_NoMsg(id, challanAmount, selectedBank,item.SellerPAN);                   
+                    //autoUploadChallan_NoMsg(id, challanAmount, selectedBank,item.SellerPAN);    
+                    UploadDebitAdvice(id);
                 }
 
 
@@ -219,6 +232,7 @@ namespace AutoFill
                     MessageBox.Show("Following units are failed : " + failedPayments);
                 }
                 MessageBox.Show("Batch process completed.");
+                Dispatcher.BeginInvoke(new Action(() => lbl_runingUnit.Content = ""), System.Windows.Threading.DispatcherPriority.Send);
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
             
@@ -235,6 +249,73 @@ namespace AutoFill
             RemittanceSearchFilter();
         }
 
+        private void UploadDebitAdvice(int transID ) {
+            var remittance = svc.GetRemitanceByTransID(transID);
+            var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+
+            //var fileName = "AHUPB2786K_23040400148910ICIC_DTAX_04042023_TaxPayer.pdf";
+            // var fileName = remittance.CustomerPAN + "_*.pdf";
+            var fileName = "23040800002375ICIC_ChallanReceipt.pdf";
+
+            var directory = new DirectoryInfo(downloadPath);
+            var myFile = directory.GetFiles(fileName).OrderByDescending(f => f.LastWriteTime).ToList();
+
+            if (myFile.Count == 0)
+                return;
+
+            var filename = myFile[0].FullName;
+
+            var unzipFile = new UnzipFile();
+            Dictionary<string, string> debitAdvice;
+
+            debitAdvice = unzipFile.getDebitAdviceDetails(filename);          
+
+            var formData = new MultipartFormDataContent();
+            var fileContent = new ByteArrayContent(File.ReadAllBytes(filename));
+            var fileType = System.IO.Path.GetExtension(filename);
+            var contentType = svc.GetContentType(fileType);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            var name = System.IO.Path.GetFileName(filename);
+            formData.Add(fileContent, "file", name);
+            int result = svc.SaveDebitAdviceFile(formData);
+
+            if (result != 0)
+            {
+                DebitAdviceDto dto = new DebitAdviceDto
+                {
+                    ClientPaymentTransactionID = transID,
+                    CinNo = debitAdvice["cinNo"],
+                    PaymentDate = DateTime.ParseExact(debitAdvice["paymentDate"], "dd/MM/yyyy", null),
+                    BlobId=result
+                };
+                var debitAdviceId = svc.SaveDebitAdvice(dto);
+            }
+        }
+
+        private void UploadChallan(int transID)
+        {
+            //var remittance = svc.GetRemitanceByTransID(transID);
+            var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+
+            //var fileName = "AHUPB2786K_23040400148910ICIC_DTAX_04042023_TaxPayer.pdf";
+            // var fileName = remittance.CustomerPAN + "_*.pdf";
+            var fileName = "23040800002375ICIC_ChallanReceipt.pdf";
+
+            var directory = new DirectoryInfo(downloadPath);
+            var myFile = directory.GetFiles(fileName).OrderByDescending(f => f.LastWriteTime).ToList();
+
+            if (myFile.Count == 0)
+                return;
+
+            var filename = myFile[0].FullName;
+
+            var unzipFile = new UnzipFile();
+            Dictionary<string, string> debitAdvice;
+
+            debitAdvice = unzipFile.getChallanDetails_da(filename);
+
+           
+        }
 
         private async void autoUploadChallan(int transID, decimal challanAmt, string bankName,string sellerPan)
         {
@@ -415,8 +496,10 @@ namespace AutoFill
         }
 
         private void Search_Click(object sender, RoutedEventArgs e)
-        {            
-            RemittanceSearchFilter();           
+        {
+            // RemittanceSearchFilter();   
+            // UploadDebitAdvice(5609);
+            UploadChallan(5609);
         }
 
         private void TracesSearch_Click(object sender, RoutedEventArgs e)
@@ -494,6 +577,7 @@ namespace AutoFill
                 return svc.GetTdsRemitance(custName, premise, unit,fromUnit,toUnit, lot);
             });
             remittanceList = remittanceList.OrderBy(x => x.UnitNo).ToList();
+            foreach (var x in remittanceList){  x.Show26qb = !x.IsDebitAdvice; };
             remitanceGrid.ItemsSource = remittanceList;
             TotalRecordsLbl.Content = remittanceList.Count;
             var totalTds = remittanceList.Sum(x => x.TdsAmount);
@@ -893,6 +977,15 @@ namespace AutoFill
                 MessageBox.Show("OTP reset is done");
             else
                 MessageBox.Show("OTP reset is failed");
+        }
+
+        private void challan_download_Click(object sender, RoutedEventArgs e)
+        {
+            var remittanceList = (List<TdsRemittanceDto>)remitanceGrid.ItemsSource;
+            remittanceList = remittanceList.Where(x => x.IsSelected == true).ToList();
+            var id = remittanceList[0].ClientPaymentTransactionID;
+            AutoFillDto autoFillDto = svc.GetAutoFillData(id);
+            FillForm26QB_ICICI.DownloadChallanFromTaxPortal(autoFillDto,id);
         }
     }
 }

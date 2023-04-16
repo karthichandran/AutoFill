@@ -15,9 +15,11 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-             client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
-            
-           //client.BaseAddress = new Uri("https://localhost:44301/api/");
+           //  client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
+
+           // client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
+
+            client.BaseAddress = new Uri("https://localhost:44301/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -222,6 +224,52 @@ namespace AutoFill
                 return remittanceDto.RemittanceID;
             }
             return 0;
+        }
+
+        public int SaveDebitAdviceFile(MultipartFormDataContent file)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            response = client.PostAsync("DebitAdvice/uploadFile",  file).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return response.Content.ReadAsAsync<int>().Result;
+
+            }
+            return 0;
+        }
+
+        public int SaveDebitAdvice(DebitAdviceDto debitAdviceDto)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            CreateDebitAdviceCommand debitAdviceObj = new CreateDebitAdviceCommand();
+            debitAdviceObj.debitAdviceDto = debitAdviceDto;
+            response = client.PostAsJsonAsync("DebitAdvice", debitAdviceObj).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return response.Content.ReadAsAsync<int>().Result;
+
+            }
+            return 0;
+        }
+
+        public DebitAdviceDto GetDebitAdviceByClienttransId(int transId)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            CreateDebitAdviceCommand debitAdviceObj = new CreateDebitAdviceCommand();
+            response = client.GetAsync("DebitAdvice/getById/"+transId).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return response.Content.ReadAsAsync<DebitAdviceDto>().Result;
+
+            }
+
+            return new DebitAdviceDto();
         }
 
         public string UploadFile(MultipartFormDataContent file,string remittanceId, int category) {
@@ -504,6 +552,8 @@ namespace AutoFill
         public virtual decimal ChallanAmount { get; set; }
 
         public bool OnlyTDS { get; set; }
+        public bool IsDebitAdvice { get; set; }
+        public bool Show26qb { get; set; }
     }
 
     public class AutoFillDto
@@ -514,12 +564,14 @@ namespace AutoFill
             tab2 = new Tab2();
             tab3 = new Tab3();
             tab4 = new Tab4();
+            eportal = new Eportal();
         }
 
         public Tab1 tab1 { get; set; }
         public Tab2 tab2 { get; set; }
         public Tab3 tab3 { get; set; }
         public Tab4 tab4 { get; set; }
+        public Eportal eportal { get; set; }
 
     }
 
@@ -591,6 +643,7 @@ namespace AutoFill
         public Guid OwnershipId { get; set; }
         public Guid InstallmentId { get; set; }
         public int PropertyID { get; set; }
+        public Decimal TotalAmountPaid { get; set; }
     }
 
     public class Tab4
@@ -600,6 +653,36 @@ namespace AutoFill
         public string ModeOfPayment { get; set; }
         public DatePart DateOfPayment { get; set; }
         public DatePart DateOfTaxDeduction { get; set; }
+    }
+    public class Eportal
+    {
+        public string LogInPan { get; set; }
+        public string IncomeTaxPwd { get; set; }
+        public bool IsCoOwners { get; set; }
+        public string SellerPan { get; set; }
+        public string SellerFlat { get; set; }
+        public string SellerRoad { get; set; }
+        public string SellerPinCode { get; set; }
+        public string SellerPOstOffice { get; set; }
+        public string SellerArea { get; set; }
+        public string SellerMobile { get; set; }
+        public string SellerEmail { get; set; }
+        public bool IsLand { get; set; }
+        public string PropFlat { get; set; }
+        public string PropRoad { get; set; }
+        public string PropPinCode { get; set; }
+        public string PropPOstOffice { get; set; }
+        public string PropArea { get; set; }
+        public int paymentType { get; set; }
+        public DatePart DateOfAgreement { get; set; }
+        public int TotalAmount { get; set; }
+        public int StampDuty { get; set; }
+        public DatePart RevisedDateOfPayment { get; set; }
+        public decimal TotalAmountPaid { get; set; }
+        public Decimal Tds { get; set; }
+        public Decimal Interest { get; set; }
+        public Decimal Fee { get; set; }
+        public int AmountPaid { get; set; }
     }
     public class DatePart
     {
@@ -630,4 +713,16 @@ namespace AutoFill
         public int Opt { get; set; }
     }
 
+    public class CreateDebitAdviceCommand {
+        public DebitAdviceDto debitAdviceDto { get; set; }
+    }
+
+    public class DebitAdviceDto
+    {
+        public int DebitAdviceID { get; set; }
+        public int ClientPaymentTransactionID { get; set; }
+        public string CinNo { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public int? BlobId { get; set; }
+    }
 }

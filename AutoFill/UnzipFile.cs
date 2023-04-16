@@ -53,6 +53,63 @@ namespace AutoFill
             return @downloadPath + '\\' + fileName + ".pdf";
         }
 
+        public Dictionary<string, string> getDebitAdviceDetails(string filePath)
+        {
+            Dictionary<string, string> challanDet = new Dictionary<string, string>();
+           
+            string text;
+            using (var stream = File.OpenRead(filePath))
+            using (UglyToad.PdfPig.PdfDocument document = UglyToad.PdfPig.PdfDocument.Open(stream))
+            {
+                var page = document.GetPage(1);
+                text = string.Join(" ", page.GetWords());
+            }
+
+            Console.WriteLine(text);
+            var cinNo = GetWordAfterMatch(text, "CIN No");
+            Console.WriteLine("Challan Serial NO :" + cinNo);
+            var paymentDate = GetDate(text, "Time");
+           
+            challanDet.Add("cinNo", cinNo.ToString());
+            challanDet.Add("paymentDate", paymentDate.ToString());
+
+            return challanDet;
+        }
+
+        public Dictionary<string, string> getChallanDetails_da(string filePath)
+        {
+            Dictionary<string, string> challanDet = new Dictionary<string, string>();
+
+            string text;
+            using (var stream = File.OpenRead(filePath))
+            using (UglyToad.PdfPig.PdfDocument document = UglyToad.PdfPig.PdfDocument.Open(stream))
+            {
+                var page = document.GetPage(1);
+                text = string.Join(" ", page.GetWords());
+            }
+
+            Console.WriteLine(text);
+            var ackowledgeNo = GetWordAfterMatch(text, "Acknowledgement Number :");
+            Console.WriteLine("Acknowledgement :" + ackowledgeNo);
+
+            var serialNo = GetWordAfterMatch(text, "Challan No :");
+            Console.WriteLine("Challan Serial NO :" + serialNo);
+
+            var name = GetName(text, "Name :");           
+
+            var tenderDate = GetWordAfterMatch(text, "Tender Date :");
+
+            var incomeTax = GetWordAfterMatch(text, "Amount (in Rs.) : ₹");
+           
+            challanDet.Add("acknowledge", ackowledgeNo.ToString());
+            challanDet.Add("serialNo", serialNo.ToString());
+            challanDet.Add("name", name.ToString());
+            challanDet.Add("tenderDate", tenderDate.ToString());
+            challanDet.Add("amount", incomeTax.ToString());
+
+            return challanDet;
+        }
+
         public Dictionary<string, string> getChallanDetails(string filePath, string pan)
         {
             Dictionary<string, string> challanDet = new Dictionary<string, string>();

@@ -16,8 +16,9 @@ namespace AutoFill
     {
        
        static BankAccountDetailsDto _bankLogin;       
-        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin,string transID, string bank)
+        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin,string transID)
         {
+            var driver = GetChromeDriver();
             try
             {
                 _bankLogin = bankLogin;// rgan31
@@ -25,7 +26,7 @@ namespace AutoFill
                // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.RGANESH", UserPassword = "Rajalara@123" }; 
                // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.VIJAYALA", UserPassword = "Sriram@123" }; 
 
-                var driver = GetChromeDriver();
+              
                 // var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
                 //var driver = new ChromeDriver(options);
                 //driver.Manage().Window.Maximize();
@@ -61,6 +62,7 @@ namespace AutoFill
             }
             catch (Exception e)
             {
+                driver.Quit();
                 Console.WriteLine(e);
                 MessageBox.Show("Processing Form26QB Failed");
                 return false;
@@ -69,14 +71,13 @@ namespace AutoFill
         }
 
         //Note : both autofillform26q should be same functionality
-        public static bool AutoFillForm26QB_NoMsg(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID, string bank)
+        public static bool AutoFillForm26QB_NoMsg(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID)
         {
+            var driver = GetChromeDriver();
             try
             {
-                _bankLogin = bankLogin;
-                                      
-
-                var driver = GetChromeDriver();
+                _bankLogin = bankLogin;                                   
+               
                 driver.Navigate().GoToUrl("https://onlineservices.tin.egov-nsdl.com/etaxnew/tdsnontds.jsp");
                 WaitForReady(driver);
                 driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
@@ -106,6 +107,7 @@ namespace AutoFill
             }
             catch (Exception e)
             {
+                driver.Quit();
                 return false;
                 // throw;
             }
@@ -276,9 +278,6 @@ namespace AutoFill
             var totalValue = webDriver.FindElement(By.Name("totalPropertyValue"));
             totalValue.SendKeys(tab3.TotalAmount.ToString());
 
-            var stampDutyValue = webDriver.FindElement(By.Id("stampdutyvalue"));
-            stampDutyValue.SendKeys(tab3.StampDuty.ToString());
-
             var paymentType = webDriver.FindElement(By.Name("paymentType"));
             var paymentTypeDDl = new SelectElement(paymentType);
             paymentTypeDDl.SelectByIndex(tab3.PaymentType);
@@ -286,7 +285,7 @@ namespace AutoFill
 
             var paymentDay = webDriver.FindElement(By.Name("pymntDay"));
             paymentDay.Click();
-            var paymentDayDDl = new SelectElement(paymentDay);         
+            var paymentDayDDl = new SelectElement(paymentDay);
             var paymentdaysOpt = paymentDayDDl.Options.Where(x => x.Text.Trim() == tab3.RevisedDateOfPayment.Day.ToString()).FirstOrDefault();
             paymentDayDDl.SelectByText(paymentdaysOpt.Text);
 
@@ -316,8 +315,22 @@ namespace AutoFill
             var deductionyearOpt = deductionyearDDl.Options.Where(x => x.Text.Trim() == tab3.DateOfDeduction.Year.ToString()).FirstOrDefault();
             deductionyearDDl.SelectByText(deductionyearOpt.Text);
 
+            var isLastInstallment = webDriver.FindElement(By.Name("lastinstallment"));
+            var isLastInstallmentDDl = new SelectElement(isLastInstallment);
+            isLastInstallmentDDl.SelectByIndex(2);
+
+            var totalAmtPaid = webDriver.FindElement(By.Id("totalamountinpreviousinstallment"));
+            if(tab3.TotalAmountPaid>0)
+            totalAmtPaid.SendKeys(Convert.ToInt32(tab3.TotalAmountPaid).ToString());
+            else
+                totalAmtPaid.SendKeys("1");
+
+            var stampDutyValue = webDriver.FindElement(By.Id("stampdutyvalue"));
+            if (stampDutyValue.Enabled)
+                stampDutyValue.SendKeys(tab3.StampDuty.ToString());
+
             var higherRate = webDriver.FindElement(By.Id("tds_higher_rate"));
-            if (higherRate.Displayed)
+            if (higherRate.Displayed && higherRate.Enabled)
             {
                 var higherRateDDl = new SelectElement(higherRate);
                 higherRateDDl.SelectByText("No");
@@ -365,7 +378,6 @@ namespace AutoFill
             }
             webDriver.FindElement(By.XPath("//a[@href='#next']")).Click();
         }
-
         private static void FillPaymentinfo(IWebDriver webDriver, Tab4 tab4, string bankName)
         {
             var modePofPay = "";
