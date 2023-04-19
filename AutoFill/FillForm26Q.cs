@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -14,16 +16,17 @@ namespace AutoFill
     {
        
        static BankAccountDetailsDto _bankLogin;       
-        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin)
+        public static bool AutoFillForm26QB(AutoFillDto autoFillDto,string tds,string interest,string lateFee, BankAccountDetailsDto bankLogin,string transID)
         {
+            var driver = GetChromeDriver();
             try
             {
                 _bankLogin = bankLogin;// rgan31
-               // _bankLogin =new BankAccountDetailsDto{ UserName="reprosri",UserPassword="Repro&123"}; // Note : sri ram account
+              //  _bankLogin =new BankAccountDetailsDto{ UserName="139011208",UserPassword="Rajalara@789"}; // Note : sri ram account
                // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.RGANESH", UserPassword = "Rajalara@123" }; 
                // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.VIJAYALA", UserPassword = "Sriram@123" }; 
 
-                var driver = GetChromeDriver();
+              
                 // var driver = new ChromeDriver(AppDomain.CurrentDomain.BaseDirectory, options);
                 //var driver = new ChromeDriver(options);
                 //driver.Manage().Window.Maximize();
@@ -32,7 +35,6 @@ namespace AutoFill
                 // var proceedBtn = driver.FindElement(By.XPath("//a[@href='javascript:sendRequest(\'PropertyTaxForm\');']"));
                 driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
 
-              //  MessageBoxResult result = MessageBox.Show("PLease fill the capcha and press ok button", "Confirmation", MessageBoxButton.YesNo);
 
                 WaitForReady(driver);
                 FillTaxPayerInfo(driver, autoFillDto.tab1);
@@ -44,18 +46,70 @@ namespace AutoFill
                 FillPropertyinfo(driver, autoFillDto.tab3);
 
                 WaitForReady(driver);
-                FillPaymentinfo(driver, autoFillDto.tab4);
+                FillPaymentinfo(driver, autoFillDto.tab4, _bankLogin.BankName);
 
-                WaitForReady(driver);
-                ProcessToBank(driver, tds,interest,lateFee);
+                // if (bank == "HDFC")
+                if (_bankLogin.BankName == "HDFC")
+                    ProcessToBank_hdfc(driver, tds, interest, lateFee, transID);
+                else
+                {
+                    WaitForReady(driver);
+                    ProcessToBank(driver, tds, interest, lateFee, transID);
+                }
+
+                driver.Quit();
                 return true;
             }
             catch (Exception e)
             {
+                driver.Quit();
                 Console.WriteLine(e);
                 MessageBox.Show("Processing Form26QB Failed");
                 return false;
                // throw;
+            }
+        }
+
+        //Note : both autofillform26q should be same functionality
+        public static bool AutoFillForm26QB_NoMsg(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID)
+        {
+            var driver = GetChromeDriver();
+            try
+            {
+                _bankLogin = bankLogin;                                   
+               
+                driver.Navigate().GoToUrl("https://onlineservices.tin.egov-nsdl.com/etaxnew/tdsnontds.jsp");
+                WaitForReady(driver);
+                driver.FindElement(By.XPath("//*[@id='selectform']/div[3]/div[1]/section/div/div/a")).Click(); //todo improve xpath
+
+                WaitForReady(driver);
+                FillTaxPayerInfo(driver, autoFillDto.tab1);
+
+                WaitForReady(driver);
+                FillAddress(driver, autoFillDto.tab2);
+
+                WaitForReady(driver);
+                FillPropertyinfo(driver, autoFillDto.tab3);
+
+                WaitForReady(driver);
+                FillPaymentinfo(driver, autoFillDto.tab4, _bankLogin.BankName);
+
+                // if (bank == "HDFC")
+                if (_bankLogin.BankName == "HDFC")
+                    ProcessToBank_hdfc(driver, tds, interest, lateFee, transID);
+                else
+                {
+                    WaitForReady(driver);
+                    ProcessToBank(driver, tds, interest, lateFee, transID);
+                }
+                driver.Quit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                driver.Quit();
+                return false;
+                // throw;
             }
         }
 
@@ -231,7 +285,7 @@ namespace AutoFill
 
             var paymentDay = webDriver.FindElement(By.Name("pymntDay"));
             paymentDay.Click();
-            var paymentDayDDl = new SelectElement(paymentDay);         
+            var paymentDayDDl = new SelectElement(paymentDay);
             var paymentdaysOpt = paymentDayDDl.Options.Where(x => x.Text.Trim() == tab3.RevisedDateOfPayment.Day.ToString()).FirstOrDefault();
             paymentDayDDl.SelectByText(paymentdaysOpt.Text);
 
@@ -261,11 +315,27 @@ namespace AutoFill
             var deductionyearOpt = deductionyearDDl.Options.Where(x => x.Text.Trim() == tab3.DateOfDeduction.Year.ToString()).FirstOrDefault();
             deductionyearDDl.SelectByText(deductionyearOpt.Text);
 
+            var isLastInstallment = webDriver.FindElement(By.Name("lastinstallment"));
+            var isLastInstallmentDDl = new SelectElement(isLastInstallment);
+            isLastInstallmentDDl.SelectByIndex(2);
+
+            var totalAmtPaid = webDriver.FindElement(By.Id("totalamountinpreviousinstallment"));
+            if(tab3.TotalAmountPaid>0)
+            totalAmtPaid.SendKeys(Convert.ToInt32(tab3.TotalAmountPaid).ToString());
+            else
+                totalAmtPaid.SendKeys("1");
+
+            var stampDutyValue = webDriver.FindElement(By.Id("stampdutyvalue"));
+            if (stampDutyValue.Enabled)
+                stampDutyValue.SendKeys(tab3.StampDuty.ToString());
+
             var higherRate = webDriver.FindElement(By.Id("tds_higher_rate"));
-            var higherRateDDl = new SelectElement(higherRate);
-            higherRateDDl.SelectByText("No");
+            if (higherRate.Displayed && higherRate.Enabled)
+            {
+                var higherRateDDl = new SelectElement(higherRate);
+                higherRateDDl.SelectByText("No");
 
-
+            }
             // AssignAmount(webDriver, "111111111");
             var ones = webDriver.FindElement(By.Name("Ones"));
             var onesDDl = new SelectElement(ones);
@@ -308,8 +378,7 @@ namespace AutoFill
             }
             webDriver.FindElement(By.XPath("//a[@href='#next']")).Click();
         }
-
-        private static void FillPaymentinfo(IWebDriver webDriver, Tab4 tab4)
+        private static void FillPaymentinfo(IWebDriver webDriver, Tab4 tab4, string bankName)
         {
             var modePofPay = "";
             if (tab4.ModeOfPayment == "modeBankSelection")
@@ -322,12 +391,30 @@ namespace AutoFill
             {
                 var bank = webDriver.FindElement(By.Id("NetBank_Name_c"));
                 var bankDDl = new SelectElement(bank);
-                bankDDl.SelectByText("ICICI Bank");
+                if (bankName == "HDFC")
+                    bankDDl.SelectByText("HDFC Bank");
+                else
+                    bankDDl.SelectByText("ICICI Bank");
             }
-
-            MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+            var captcha = ReadCaptcha(webDriver, "Captcha");
+            if (captcha == "")
+            {
+                MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
                                                      MessageBoxButton.OK, MessageBoxImage.Asterisk,
                                                      MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                var captchaInput = webDriver.FindElement(By.Name("captchaText"));
+                captchaInput.SendKeys(captcha);
+            }
+
+            //MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
+            //                                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+            //                                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+
+
+
             var proceedBtn = webDriver.FindElement(By.XPath("//a[@href='#finish']"));
             proceedBtn.Click();
             WaitFor(webDriver, 2);
@@ -345,13 +432,17 @@ namespace AutoFill
             WaitForReady(webDriver);
             WaitFor(webDriver, 3);
             //  new WebDriverWait(webDriver, TimeSpan.FromSeconds(60)).Until(ExpectedConditions.ElementExists(By.XPath("//button[@data-dismiss='modal']")));
+            //"Kindly save Acknowledgement No.BJ0847173 for future reference"
+            var acknowledgeText = webDriver.FindElement(By.Id("ackgeneratedNum")).Text;
+            var ackowledgeNo = acknowledgeText.Replace("Kindly save Acknowledgement No.", "").Replace("for future reference", "").Trim();
             var closeBtn = webDriver.FindElement(By.XPath("//button[@data-dismiss='modal']"));
             closeBtn.Click();
             WaitForReady(webDriver);
             WaitFor(webDriver, 3);
             var submitToBankBtn = webDriver.FindElement(By.Id("Submit"));
             submitToBankBtn.Click();
-            WaitForReady(webDriver);
+            //WaitForReady(webDriver);
+            WaitFor(webDriver, 3);
             //var day = webDriver.FindElement(By.Name("pymntDay"));
             //day.Click();
             //var dayDDl = new SelectElement(day);
@@ -376,7 +467,7 @@ namespace AutoFill
 
         }
 
-        private static void ProcessToBank(IWebDriver webDriver,string tds,string interest,string lateFee) {
+        private static void ProcessToBank(IWebDriver webDriver,string tds,string interest,string lateFee,string transId) {
             if (_bankLogin == null)
             {
                var result = MessageBox.Show("Bank login details not available", "Confirmation",
@@ -410,6 +501,13 @@ namespace AutoFill
                 feeTxt.SendKeys(lateFee);
             }
 
+            WaitFor(webDriver, 1);
+            if (!string.IsNullOrEmpty(transId))
+            {
+                var feeTxt = webDriver.FindElement(By.Id("TranRequestManagerFG.PMT_RMKS"));
+                feeTxt.SendKeys(transId);
+            }
+
             var gridAuth = webDriver.FindElements(By.Id("TranRequestManagerFG.AUTH_MODES"));
             gridAuth[1].Click();
 
@@ -429,6 +527,127 @@ namespace AutoFill
             }
 
             var downloadBtn = webDriver.FindElement(By.Id("SINGLEPDF"));
+            downloadBtn.Click();
+            WaitFor(webDriver, 3);
+        }
+        private static void ProcessToBank_hdfc(IWebDriver webDriver, string tds, string interest, string lateFee, string transId)
+        {
+            if (_bankLogin == null)
+            {
+                var result = MessageBox.Show("Bank login details not available", "Confirmation",
+                                                         MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                         MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                return;
+            }
+            WaitFor(webDriver, 3);
+
+            var payBtn = webDriver.FindElements(By.XPath("//a[contains(.,'Click Here')]"))[0];
+            payBtn.Click();
+            //WaitForReady(webDriver);
+            WaitFor(webDriver, 3);//
+            var frame = webDriver.FindElements(By.Name("bottom_frame"))[0];
+            webDriver.SwitchTo().Frame(frame);
+            ////*[@id="pageBody"]/div[1]/form/div[3]/div/div/div[2]/div[2]/div[1]/div[2]/input
+            ////html/body/div[1]/form/div[3]/div/div/div[2]/div[2]/div[1]/div[2]/input
+            var userIdTxt = webDriver.FindElement(By.XPath("//html/body/div[1]/form/div[3]/div/div/div[2]/div[2]/div[1]/div[2]/input"));
+            // elms = webDriver.FindElements(By.ClassName("form-control"));
+          //  var userIdTxt = webDriver.FindElement(By.ClassName("form-control"));
+            userIdTxt.SendKeys(_bankLogin.UserName);
+
+            var continueBtn = webDriver.FindElements(By.XPath("//a[contains(.,'CONTINUE')]"))[0];
+            continueBtn.Click();
+           // WaitForReady(webDriver);
+            WaitFor(webDriver, 3);
+            frame = webDriver.FindElements(By.Name("bottom_frame"))[0];
+            webDriver.SwitchTo().Frame(frame);
+            var pwdTxt = webDriver.FindElements(By.Id("fldPasswordDispId"));         
+            pwdTxt[0].SendKeys(_bankLogin.UserPassword);
+
+            var loginBtn = webDriver.FindElements(By.XPath("//a[contains(.,'LOGIN')]"))[0];
+            loginBtn.Click();
+            WaitFor(webDriver, 3);
+
+            var acctElm = webDriver.FindElements(By.Name("selAcct"));
+            var acctDDl = new SelectElement(acctElm[0]);
+            acctDDl.SelectByIndex(1);
+
+            //basic tax
+            var tdsInt = Math.Round(Convert.ToDecimal(tds), MidpointRounding.AwayFromZero);
+            var incomeTaxTxt = webDriver.FindElement(By.Name("fldBasicTax"));
+            incomeTaxTxt.Clear();
+            incomeTaxTxt.SendKeys(tdsInt.ToString());
+            WaitFor(webDriver, 1);
+
+            if (!string.IsNullOrEmpty(interest))
+            {
+                var interestInt = Math.Round(Convert.ToDecimal(interest), MidpointRounding.AwayFromZero);
+                var interestTxt = webDriver.FindElement(By.Name("fldInterest"));
+                interestTxt.Clear();
+                interestTxt.SendKeys(interestInt.ToString());
+            }
+            WaitFor(webDriver, 1);
+            if (!string.IsNullOrEmpty(lateFee))
+            {
+                var feeInt = Math.Round(Convert.ToDecimal(lateFee), MidpointRounding.AwayFromZero);
+                var feeTxt = webDriver.FindElement(By.Name("fldFee"));
+                feeTxt.Clear();
+                feeTxt.SendKeys(feeInt.ToString());
+            }
+
+            var nextBtn = webDriver.FindElements(By.XPath("//img[@src='gif/continue.gif']"))[0];
+            nextBtn.Click();
+            //WaitForReady(webDriver);
+            WaitFor(webDriver, 2);
+            var confirmBtn = webDriver.FindElements(By.XPath("//img[@src='gif/confirm.gif']"))[0];
+            confirmBtn.Click();
+            // WaitForReady(webDriver);
+
+            WaitFor(webDriver, 3);
+            service svc = new service();
+            string otp = "";
+            for (var i = 0; i < 120; i++)
+            {
+                var msg = svc.GetOTP(_bankLogin.LaneNo.Value);
+                if (msg == null) {
+                    Thread.Sleep(2000);
+                    continue;
+                }
+
+                if (msg.Opt > 0)
+                {
+                    var txtOpt = msg.Opt.ToString();
+                   
+                    otp = txtOpt.Length==6? txtOpt :  Regex.Match(msg.Body, "(\\d{6})").Groups[0].Value; ;
+                    break;
+                }
+                
+            }
+
+            //Ask OTP if not received
+            if (otp == "")
+            {
+                MessageBoxResult done = MessageBox.Show("Please fill the OTP and press OK button.", "Confirmation",
+                                                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                                                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            }
+            else
+            {
+                //fill opt
+                var optElm = webDriver.FindElement(By.Name("fldOtpToken"));               
+                optElm.SendKeys(otp);
+            }
+
+            //Delete otp
+            svc.DeleteOTP(_bankLogin.LaneNo.Value);
+
+            ///gif/submit.gif
+            ///
+            var submitBtn = webDriver.FindElements(By.XPath("//html/body/form[2]/table[2]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[2]/td/table/tbody/tr/td/table[2]/tbody/tr[3]/td[3]/a"));
+            submitBtn[0].Click();
+            //WaitForReady(webDriver);
+            WaitFor(webDriver, 2);
+
+            var downloadBtn = webDriver.FindElements(By.XPath("//img[@src='gif/download.gif']"))[0];
             downloadBtn.Click();
             WaitFor(webDriver, 3);
         }
@@ -645,5 +864,7 @@ namespace AutoFill
             thirstInput.SendKeys(grid[thirdLetter]);
 
         }
+
+       
     }
 }
