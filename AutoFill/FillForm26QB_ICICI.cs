@@ -17,27 +17,27 @@ namespace AutoFill
         static BankAccountDetailsDto _bankLogin;
         public static bool AutoFillForm26QB(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID)
         {
+            var driver = GetChromeDriver();
             try
             {
-
                 _bankLogin = bankLogin;// rgan31
                                        // _bankLogin =new BankAccountDetailsDto{ UserName="reprosri",UserPassword="Repro&123"}; // Note : sri ram account
                                        // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.RGANESH", UserPassword = "Rajalara@123" }; 
                                        // _bankLogin = new BankAccountDetailsDto { UserName = "579091011.VIJAYALA", UserPassword = "Sriram@123" }; 
 
-                var driver = GetChromeDriver();
                
                 driver.Navigate().GoToUrl("https://eportal.incometax.gov.in/iec/foservices/#/login");
-                WaitForReady(driver);             
-
-                ProcessEportal(driver , autoFillDto.eportal);
+                WaitForReady(driver);
+                LoginToIncomeTaxPortal(driver, autoFillDto.eportal);
+                ProcessEportal(driver , autoFillDto.eportal);              
                 ProcessToBank(driver, tds, interest, lateFee, transID);
-
+                LogOut(driver);
                 driver.Quit();
                 return true;
             }
             catch (Exception e)
             {
+                LogOut(driver);
                 Console.WriteLine(e);
                 MessageBox.Show("Processing Form26QB Failed");
                 return false;
@@ -48,25 +48,23 @@ namespace AutoFill
         //Note : both autofillform26q should be same functionality
         public static bool AutoFillForm26QB_NoMsg(AutoFillDto autoFillDto, string tds, string interest, string lateFee, BankAccountDetailsDto bankLogin, string transID)
         {
+            var driver = GetChromeDriver();
             try
-            {
-               
-
+            {              
                 _bankLogin = bankLogin;
-
-                var driver = GetChromeDriver();
 
                 driver.Navigate().GoToUrl("https://eportal.incometax.gov.in/iec/foservices/#/login");
                 WaitForReady(driver);
-
+                LoginToIncomeTaxPortal(driver, autoFillDto.eportal);
                 ProcessEportal(driver, autoFillDto.eportal);
                 ProcessToBank(driver, tds, interest, lateFee, transID);
-
+                LogOut(driver);
                 driver.Quit();
                 return true;
             }
             catch (Exception e)
             {
+                LogOut(driver);
                 return false;
                 // throw;
             }
@@ -74,25 +72,26 @@ namespace AutoFill
 
         public static bool DownloadChallanFromTaxPortal(AutoFillDto autoFillDto,  int transID)
         {
+            var driver = GetChromeDriver();
             try
             {
                 var svc = new service();
                 var daObj = svc.GetDebitAdviceByClienttransId( transID);
-
-
-                var driver = GetChromeDriver();
+                if (daObj == null || daObj.DebitAdviceID == 0)
+                    return false;
 
                 driver.Navigate().GoToUrl("https://eportal.incometax.gov.in/iec/foservices/#/login");
                 WaitForReady(driver);
 
-                LoginToIncomeTaxPortal(driver, autoFillDto.eportal);
-                DownloadChallan(driver, daObj);
-
+                LoginToIncomeTaxPortal(driver, autoFillDto.eportal);                
+               var isDownloaded= DownloadChallan(driver, daObj);
+                LogOut(driver);
                 driver.Quit();
-                return true;
+                return isDownloaded;
             }
             catch (Exception e)
             {
+                LogOut(driver);
                 return false;
                 // throw;
             }
@@ -122,16 +121,34 @@ namespace AutoFill
             // var pwdElm = webDriver.FindElement(By.Id("loginPasswordField"));
             var pwdElm = GetElementById(webDriver, "loginPasswordField");
             pwdElm.SendKeys(eportal.IncomeTaxPwd);
-            //pwdElm.SendKeys("Rama1976$$");
+           // pwdElm.SendKeys("Rama1976$$");
 
             //continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
             continueBtn = GetElementByClass(webDriver, "large-button-primary");
             continueBtn.Click();
             WaitFor(webDriver, 3);
             WaitForReady(webDriver);
+
+            //primaryBtnMargin
+            var loginHereBtn = webDriver.FindElements(By.ClassName("primaryBtnMargin"));
+            if (loginHereBtn.Count > 0)
+            {
+                loginHereBtn[0].Click();
+                WaitFor(webDriver, 3);
+                WaitForReady(webDriver);
+            }
         }
 
-        private static void DownloadChallan(IWebDriver webDriver, DebitAdviceDto dto) {
+        private static void LogOut(IWebDriver webDriver) { 
+        var userProfileBtn = GetElementByClass(webDriver, "profileMenubtn");
+            userProfileBtn.Click();
+            var receiptElm = webDriver.FindElements(By.ClassName("mat-menu-item"))[2];
+            receiptElm.Click();
+            WaitFor(webDriver, 3);
+            WaitForReady(webDriver);
+        }
+
+        private static bool DownloadChallan(IWebDriver webDriver, DebitAdviceDto dto) {
 
             WaitForReady(webDriver);
             // Navigate to efile tab
@@ -143,8 +160,9 @@ namespace AutoFill
             WaitFor(webDriver, 2);
             //payment tab
             var tab = GetElementById(webDriver, "mat-tab-label-0-2");
-            tab.Click();                     
+            tab.Click();
 
+           ( (IJavaScriptExecutor)webDriver).ExecuteScript("document.getElementById('ymPluginDivContainerInitial').remove();");
             //button[.filterMobile]
             var filterBtn = GetElementByClass(webDriver, "filterMobile");
             filterBtn.Click();
@@ -170,7 +188,8 @@ namespace AutoFill
 
             var gridContain = webDriver.FindElement(By.ClassName("ag-center-cols-container"));
             var rows= gridContain.FindElements(By.ClassName("ag-row"));
-          
+
+            var isDownloaded = false;
             foreach (var row in rows) {
                 var cells = row.FindElements(By.ClassName("ag-cell"));
                 var cinNo = cells[0].Text;
@@ -178,46 +197,48 @@ namespace AutoFill
                 var actionBtn=cells[6].FindElement(By.ClassName("mat-icon-button"));
                     actionBtn.Click();
 
-                    var receiptElm = webDriver.FindElements(By.ClassName("mat-menu-item"))[0]; 
+                    var receiptElm = webDriver.FindElements(By.ClassName("mat-menu-item"))[0];                    
                     receiptElm.Click();
+                    isDownloaded = true;
+                    break;
                 }
             }
-           
+            return isDownloaded;
 
         }
 
 
         private static void ProcessEportal(IWebDriver webDriver, Eportal eportal) {
             //var userId = webDriver.FindElement(By.Id("panAdhaarUserId"));
-            var userId = GetElementById(webDriver,"panAdhaarUserId");
-            userId.SendKeys(eportal.LogInPan);
-           // userId.SendKeys("AHUPB2786K");
+           // var userId = GetElementById(webDriver,"panAdhaarUserId");
+           // userId.SendKeys(eportal.LogInPan);
+           //// userId.SendKeys("AHUPB2786K");
 
-            //var continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
-            var continueBtn = GetElementByClass(webDriver, "large-button-primary");
-            if (!continueBtn.Displayed)
-            {
-                WaitFor(webDriver, 2);
-                continueBtn = GetElementByClass(webDriver, "large-button-primary");
-            }
+           // //var continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
+           // var continueBtn = GetElementByClass(webDriver, "large-button-primary");
+           // if (!continueBtn.Displayed)
+           // {
+           //     WaitFor(webDriver, 2);
+           //     continueBtn = GetElementByClass(webDriver, "large-button-primary");
+           // }
 
-            continueBtn.Click();
-            WaitForReady(webDriver);
+           // continueBtn.Click();
+           // WaitForReady(webDriver);
 
-            // var confirmChk = webDriver.FindElement(By.ClassName("mat-checkbox-layout"));
-            var confirmChk = GetElementByClass(webDriver, "mat-checkbox-layout");
-            confirmChk.Click();
+           // // var confirmChk = webDriver.FindElement(By.ClassName("mat-checkbox-layout"));
+           // var confirmChk = GetElementByClass(webDriver, "mat-checkbox-layout");
+           // confirmChk.Click();
 
-           // var pwdElm = webDriver.FindElement(By.Id("loginPasswordField"));
-            var pwdElm = GetElementById(webDriver, "loginPasswordField");
-            pwdElm.SendKeys(eportal.IncomeTaxPwd);
-            //pwdElm.SendKeys("Rama1976$$");
+           //// var pwdElm = webDriver.FindElement(By.Id("loginPasswordField"));
+           // var pwdElm = GetElementById(webDriver, "loginPasswordField");
+           //// pwdElm.SendKeys(eportal.IncomeTaxPwd);
+           // pwdElm.SendKeys("Rama1976$$");
 
-            //continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
-            continueBtn = GetElementByClass(webDriver, "large-button-primary");
-            continueBtn.Click();
-            WaitFor(webDriver, 3);
-            WaitForReady(webDriver);
+           // //continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
+           // continueBtn = GetElementByClass(webDriver, "large-button-primary");
+           // continueBtn.Click();
+           // WaitFor(webDriver, 3);
+           // WaitForReady(webDriver);
 
            // webDriver.Navigate().GoToUrl("https://eportal.incometax.gov.in/iec/foservices/#/dashboard/e-pay-tax/e-pay-tax-dashboard");
 
@@ -252,18 +273,18 @@ namespace AutoFill
             if (!eportal.IsCoOwners)
             {
                // var oneBuyer = webDriver.FindElement(By.XPath("//*[@id='mat-radio-5']/label"));
-                var oneBuyer = GetElementByXpath(webDriver, "//*[@id='mat-radio-5']/label");
+                var oneBuyer = GetElementByXpath(webDriver, "//*[@id='mat-radio-6']/label");
                 oneBuyer.Click();
             }
             else {
                 //var moreBuyer = webDriver.FindElement(By.XPath("//*[@id='mat-radio-6']/label"));
-                var moreBuyer = GetElementByXpath(webDriver, "//*[@id='mat-radio-6']/label");
+                var moreBuyer = GetElementByXpath(webDriver, "//*[@id='mat-radio-5']/label");
                 moreBuyer.Click();
             }
 
             ScrollToBottom(webDriver);
             //continueBtn = webDriver.FindElement(By.ClassName("large-button-primary"));
-            continueBtn = GetElementByClass(webDriver, "large-button-primary");
+            var continueBtn = GetElementByClass(webDriver, "large-button-primary");
             continueBtn.Click();
             WaitFor(webDriver, 3);
             //tab 2
@@ -298,7 +319,7 @@ namespace AutoFill
             //email.SendKeys("etes@fg.lo");
 
 
-            var oneSeller = GetElementByXpath(webDriver, "//*[@id='mat-radio-11']/label");
+            var oneSeller = GetElementByXpath(webDriver, "//*[@id='mat-radio-12']/label");
             oneSeller.Click();
             //or
             //var moreSeller = webDriver.FindElement(By.XPath("//*[@id='mat-radio-12']/label"));
@@ -373,17 +394,20 @@ namespace AutoFill
 
             }
 
-            var totalAmtPaidPreviously = GetElementById(webDriver, "mat-input-37");
+          //  var totalAmtPaidPreviously = GetElementById(webDriver, "mat-input-37");
+            var totalAmtPaidPreviously = GetElementByXpath(webDriver, "//input[@formcontrolname='prevInstallment']");
             if(totalAmtPaidPreviously.Enabled)
                 totalAmtPaidPreviously.SendKeys(Math.Round(eportal.TotalAmountPaid).ToString());
-               // totalAmtPaidPreviously.SendKeys(eportal.TotalAmountPaid.ToString());
+            // totalAmtPaidPreviously.SendKeys(eportal.TotalAmountPaid.ToString());
 
-            var amtPaidCurr = GetElementById(webDriver, "mat-input-38");
+            // var amtPaidCurr = GetElementById(webDriver, "mat-input-38");
+            var amtPaidCurr = GetElementByXpath(webDriver, "//input[@formcontrolname='amtPaidCurrently']");
             if (amtPaidCurr.Enabled)
                 amtPaidCurr.SendKeys(eportal.AmountPaid.ToString());
 
-            var stampVal = GetElementById(webDriver, "mat-input-39");
-            if(stampVal.Enabled)
+           // var stampVal = GetElementById(webDriver, "mat-input-39");
+            var stampVal = GetElementByXpath(webDriver, "//input[@formcontrolname='stampDutyValue']");
+            if (stampVal.Enabled)
             stampVal.SendKeys(eportal.StampDuty.ToString());
 
             var tdsAmt = GetElementById(webDriver, "mat-input-26");

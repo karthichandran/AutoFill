@@ -17,7 +17,6 @@ namespace AutoFill
             client = new HttpClient();
            //  client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
 
-           // client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
 
             client.BaseAddress = new Uri("https://localhost:44301/api/");
 
@@ -555,7 +554,10 @@ namespace AutoFill
         public bool IsDebitAdvice { get; set; }
         public bool Show26qb { get; set; }
     }
-
+    public class TracesModel : TdsRemittanceDto
+    {
+        public bool Form16BEnabled { get; set; }
+    }
     public class AutoFillDto
     {
         public AutoFillDto()
